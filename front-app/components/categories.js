@@ -2,7 +2,6 @@
 import { useEffect,useState } from 'react';
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import Image from 'next/image';
 
 export function Categories() {
 
@@ -37,15 +36,11 @@ export function Categories() {
           <div key={categorie.id} className="flex-shrink-0 flex flex-col items-center group cursor-pointer">
             <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white shadow-sm transition-transform group-hover:scale-105 bg-gray-200">
               {categorie.image && (
-                <Image
+                <img
                   src={`${baseUrl}/storage/${categorie.image}`}
                   alt={categorie.name}
-                  width={160}
-                  height={160}
-                  sizes="(min-width: 768px) 160px, 128px"
                   className="w-full h-full object-cover"
                 />
-                
               )}
               
             </div>

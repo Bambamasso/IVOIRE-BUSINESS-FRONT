@@ -169,7 +169,7 @@ export default function Register() {
               <button 
                 type="submit"
                 
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-base font-semibold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-base font-semibold text-white bg-[#93b86a] focus:ring-2 focus:ring-offset-2 "
               >
                 S&apos;inscrire
               </button>
@@ -182,7 +182,7 @@ export default function Register() {
               Vous avez déjà un compte ?{" "}
               <Link
                 href="/login"
-                className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline"
+                className="font-medium text-[#e8d393]  hover:underline"
               >
                 Connectez-vous ici
               </Link>

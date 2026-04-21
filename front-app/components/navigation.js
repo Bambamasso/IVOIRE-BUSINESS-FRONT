@@ -1,35 +1,48 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { HiMenuAlt3, HiX } from 'react-icons/hi';
-import { CiSearch } from 'react-icons/ci';
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { useCart } from "../app/context/CartContext";
+import Link from "next/link";
+import { HiMenuAlt3, HiX } from "react-icons/hi";
+import { CiSearch } from "react-icons/ci";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 import { CiUser } from "react-icons/ci";
 import { SlBasket } from "react-icons/sl";
 
 export default function Navbar() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isClient, setIsClient] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const {
+    isAuthenticated,
+    setIsAuthenticated,
+    getTotalItems,
+    syncCartOnLogin,
+    loadCartFromLocalStorage,
+  } = useCart();
 
   useEffect(() => {
-    // On est sûr d'être côté navigateur ici
     setIsClient(true);
-    const stored = localStorage.getItem('token');
-    let token = null;
-    if (stored) {
-      try {
-        token = JSON.parse(stored);
-      } catch {
-        token = stored;
+    const storedToken = localStorage.getItem("token");
+    setIsAuthenticated(!!storedToken);
+
+    // Pousse un état dans l'historique pour bloquer le retour après logout
+    window.history.pushState(null, "", window.location.href);
+
+    const handlePopState = () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        window.history.pushState(null, "", window.location.href);
+        router.replace("/login");
       }
-    }
-    setIsAuthenticated(!!token);
-  }, []);
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [router, setIsAuthenticated]);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -39,29 +52,32 @@ export default function Navbar() {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
-      setSearchQuery('');
+      setSearchQuery("");
     }
   };
 
   const handleLogout = async () => {
-    const stored = localStorage.getItem('token');
+    const storedToken = localStorage.getItem("token");
     let token = null;
-    if (stored) {
+    if (storedToken) {
       try {
-        token = JSON.parse(stored);
+        token = JSON.parse(storedToken);
       } catch {
-        token = stored;
+        token = storedToken;
       }
     }
 
     if (!token) {
       setIsAuthenticated(false);
-      router.push('/login');
+      localStorage.removeItem("token");
+      localStorage.removeItem("cart"); // S'assurer que le panier local est vidé
+      loadCartFromLocalStorage(); // Recharger le panier local vide
+      router.push("/login");
       return;
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-    const url = baseUrl + '/api/logout';
+    const url = baseUrl + "/api/logout";
 
     try {
       const response = await axios.post(
@@ -70,72 +86,78 @@ export default function Navbar() {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            Accept: 'application/json',
+            Accept: "application/json",
           },
-        }
+        },
       );
-      
-      if (response.data.status === 'success') {
-        localStorage.removeItem('token');
+
+      if (response.data.status === "success") {
+        localStorage.removeItem("token");
+        localStorage.removeItem("cart");
         setIsAuthenticated(false);
-        router.push('/login');
+        loadCartFromLocalStorage();
+        router.replace("/");
       } else {
-        console.error('Erreur lors de la déconnexion');
+        console.error("Erreur lors de la déconnexion");
       }
     } catch (error) {
-      console.error('Erreur réseau:', error);
+      console.error("Erreur réseau:", error);
       // En cas d’erreur, on nettoie quand même le front
-      localStorage.removeItem('token');
+      localStorage.removeItem("token");
+      localStorage.removeItem("cart");
       setIsAuthenticated(false);
-      router.push('/login');
+      loadCartFromLocalStorage();
+      router.replace("/");
     }
   };
 
+  const cartItemCount = getTotalItems();
+
   return (
-    <nav className="sticky top-0 z-50 bg-white shadow-2xl dark:bg-gray-900 dark:shadow-2xl border-b-2 border-blue-100 dark:border-blue-900">
+    <nav className="sticky top-0 z-50 bg-white shadow-md border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          {/* Logo */}
+          {/* Logo - Intellect I-B */}
           <div className="flex-shrink-0">
-            <Link href="/" className="text-2xl font-bold text-blue-600 dark:text-white">
-              MonLogo
+            <Link href="/" className="flex items-center">
+              <Image src="/images/Logo.png" alt="Logo Intellect Ivoire-Business" width={120} height={40} style={{objectFit:'contain'}} />
             </Link>
           </div>
 
           {/* Menu Desktop */}
-          <div className="hidden md:flex items-center space-x-6 flex-1 ml-8">
+          <div className="hidden md:flex items-center space-x-8 flex-1 ml-12">
             <Link
-              href="/a-propos"
-              className="text-gray-700 hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-500 transition-colors"
+              href="#about"
+              className="text-gray-600 hover:text-[#93b86a] font-medium transition-colors"
             >
               À Propos
             </Link>
             <Link
               href="/services"
-              className="text-gray-700 hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-500 transition-colors"
+              className="text-gray-600 hover:text-[#93b86a] font-medium transition-colors"
             >
               Services
             </Link>
             <Link
-              href="/contact"
-              className="text-gray-700 hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-500 transition-colors"
+              href="/home/contact"
+              className="text-gray-600 hover:text-[#93b86a] font-medium transition-colors"
             >
               Contact
             </Link>
 
-            {/* Barre de recherche */}
-            <form onSubmit={handleSearch} className="relative ml-4">
-              <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-2">
+            {/* Barre de recherche stylisée */}
+            <form onSubmit={handleSearch} className="relative flex-1 max-w-xs">
+              <div className="flex items-center bg-gray-50 border border-gray-200 rounded-full px-4 py-1.5 focus-within:border-[#93b86a] transition-all">
                 <input
                   type="text"
-                  placeholder="Rechercher..."
+                  placeholder="Rechercher un produit..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-transparent outline-none text-gray-700 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 w-40"
+                  className="bg-transparent outline-none text-sm text-gray-700 w-full"
                 />
                 <button
                   type="submit"
-                  className="ml-2 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-500 transition-colors"
+                  className="text-gray-400 hover:text-[#93b86a]"
                 >
                   <CiSearch size={20} />
                 </button>
@@ -143,138 +165,103 @@ export default function Navbar() {
             </form>
           </div>
 
-          {/* Icônes à droite */}
-          <div className="hidden md:flex items-center space-x-4">
-            {/* Panier */}
+          {/* Actions à droite */}
+          <div className="hidden md:flex items-center space-x-6">
+            {/* Panier avec ton Doré #e8d393 */}
             <Link
-              href="/cart"
-              className="relative text-gray-700 hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-500 transition-colors"
-              title="Panier"
+              href="../vente/cart"
+              className="relative text-gray-700 hover:text-[#93b86a] transition-all p-2"
             >
               <SlBasket size={24} />
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                0
-              </span>
+              {isClient && cartItemCount > 0 && (
+                <span className="absolute top-0 right-0 bg-[#e8d393] text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-sm">
+                  {cartItemCount > 9 ? "9+" : cartItemCount}
+                </span>
+              )}
             </Link>
 
-            {/* Zone Connexion / Déconnexion : seulement après montage client */}
-            {isClient && !isAuthenticated && (
-              <Link
-                href="/login"
-                className="px-4 py-2 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2"
-              >
-                <CiUser size={20} />
-                Connexion
-              </Link>
-            )}
-
-            {isClient && isAuthenticated && (
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 rounded-md bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors duration-200"
-              >
-                Déconnexion
-              </button>
-            )}
+            {/* Connexion / Profil
+            {isClient &&
+              (!isAuthenticated ? (
+                <Link
+                  href="/login"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 hover:text-[#93b86a]"
+                >
+                  <CiUser size={22} />
+                  <span>Connexion</span>
+                </Link>
+              ) : (
+                <div className="flex items-center gap-4">
+                  <Link
+                    href="/profil"
+                    className="text-gray-700 hover:text-[#93b86a]"
+                  >
+                    <CiUser size={24} />
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="text-xs font-bold text-red-500 uppercase tracking-wider"
+                  >
+                    Déconnexion
+                  </button>
+                </div>
+              ))} */}
           </div>
 
-          {/* Burger mobile */}
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={toggleMenu}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white focus:outline-none"
-              aria-expanded={isOpen}
-            >
-              {isOpen ? <HiX size={24} /> : <HiMenuAlt3 size={24} />}
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
+            <button onClick={toggleMenu} className="p-2 text-[#93b86a]">
+              {isOpen ? <HiX size={28} /> : <HiMenuAlt3 size={28} />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Menu Mobile */}
+      {/* Mobile Menu - Design Chaleureux */}
       <div
-        className={`
-          md:hidden 
-          overflow-hidden 
-          transition-all duration-300 ease-in-out
-          bg-white dark:bg-gray-800
-          ${isOpen ? 'max-h-96 opacity-100 shadow-xl' : 'max-h-0 opacity-0'}
-        `}
-        aria-hidden={!isOpen}
+        className={`md:hidden bg-white border-t border-gray-100 transition-all duration-300 ${isOpen ? "max-h-screen pb-6" : "max-h-0 overflow-hidden"}`}
       >
-        <div className="flex flex-col px-2 pt-4 pb-4 space-y-3 sm:px-3">
-          {/* Barre de recherche mobile */}
-          <form onSubmit={handleSearch} className="px-3 pb-2">
-            <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg px-3 py-2">
-              <input
-                type="text"
-                placeholder="Rechercher..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent outline-none text-gray-700 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 flex-1"
-              />
-              <button
-                type="submit"
-                className="ml-2 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-500 transition-colors"
-              >
-                <CiSearch size={20} />
-              </button>
-            </div>
-          </form>
-
+        <div className="px-4 pt-4 space-y-4">
           <Link
             href="/a-propos"
-            className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
             onClick={toggleMenu}
+            className="block text-lg font-medium text-gray-800"
           >
             À Propos
           </Link>
           <Link
             href="/services"
-            className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
             onClick={toggleMenu}
+            className="block text-lg font-medium text-gray-800"
           >
             Services
           </Link>
           <Link
             href="/contact"
-            className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
             onClick={toggleMenu}
+            className="block text-lg font-medium text-gray-800"
           >
             Contact
           </Link>
-
-          {/* Panier mobile */}
           <Link
             href="/cart"
-            className="flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
             onClick={toggleMenu}
+            className="flex items-center justify-between bg-gray-50 p-3 rounded-lg"
           >
-            <SlBasket size={20} />
-            Panier
+            <span className="font-medium">Mon Panier</span>
+            <span className="bg-[#e8d393] text-white px-3 py-1 rounded-full text-xs">
+              {cartItemCount} articles
+            </span>
           </Link>
-
-          {isClient && !isAuthenticated && (
+          {/* {!isAuthenticated && (
             <Link
               href="/login"
-              className="block px-3 py-2 rounded-md text-base font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200"
               onClick={toggleMenu}
+              className="block w-full text-center py-3 bg-[#93b86a] text-white rounded-xl font-bold"
             >
-              Connexion
+              Se connecter
             </Link>
-          )}
-
-          {isClient && isAuthenticated && (
-            <button
-              onClick={async () => {
-                await handleLogout();
-                toggleMenu();
-              }}
-              className="block text-left w-full px-3 py-2 rounded-md text-base font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors duration-200"
-            >
-              Déconnexion
-            </button>
-          )}
+          )} */}
         </div>
       </div>
     </nav>
