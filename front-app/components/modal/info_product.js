@@ -14,7 +14,7 @@ export default function GeneralInfo() {
       try {
         const baseUrl = process.env.NEXT_PUBLIC_API_URL;
         
-        const response = await axios.get(`${baseUrl}/api/categories`, {
+        const response = await axios.get(`${baseUrl}/api/admin/categories/all/gategories`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",

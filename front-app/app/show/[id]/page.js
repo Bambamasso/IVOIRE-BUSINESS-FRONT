@@ -3,6 +3,7 @@ import Footer from "@/components/footer";
 import Navbar from "@/components/navigation";
 import ProductGallery from "@/components/product_gallery";
 import ProductInfo from "@/components/product_info";
+import SimilarProduct from "@/components/similar_product";
 import axios from "axios";
 
 export default async function Show({ params }) {
@@ -12,7 +13,8 @@ export default async function Show({ params }) {
   const url = `${baseUrl}/api/home/product/${resolvedParams?.id}`;
   const response = await axios.get(url);
   const product = response?.data?.data || {};
-    console.log(product);
+  
+    // console.log(product);
   // Try to extract image URLs from common shapes returned by API
    const rawImages = product.media || product.image || [];
    const images = Array.isArray(rawImages)
@@ -47,6 +49,9 @@ export default async function Show({ params }) {
           </div>
         </div>
       </div>
+     <SimilarProduct
+    productId={product.id}
+     />
        <Footer/>
     </>
   );

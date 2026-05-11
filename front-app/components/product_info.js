@@ -52,7 +52,7 @@ export default function ProductInfo({ product }) {
       <div className="flex flex-col gap-6">
         {/* En-tête */}
         <div>
-          <span className="text-[#93b86a] font-bold text-xs uppercase tracking-[0.2em]">{category}</span>
+          {/* <span className="text-[#93b86a] font-bold text-xs uppercase tracking-[0.2em]">{category}</span> */}
           <h1 className="text-4xl font-black text-gray-900 mt-2 tracking-tighter uppercase italic italic-none">{title}</h1>
           <div className="mt-4 flex items-baseline gap-4">
             <span className="text-3xl font-bold text-gray-900">{price.toLocaleString()} FCFA</span>
@@ -60,6 +60,10 @@ export default function ProductInfo({ product }) {
               <span className="text-xl text-gray-400 line-through">{product.old_price.toLocaleString()} FCFA</span>
             )}
           </div>
+          <div className="mt-4 text-gray-500 text-sm border-y border-gray-100">
+            <h3 className="font-bold text-gray-900 mb-2">Description</h3>
+            <p>{product.description}</p>
+            </div>
         </div>
 
         {/* Sélecteurs de Variantes */}
@@ -99,12 +103,6 @@ export default function ProductInfo({ product }) {
 
         {/* Stock & Quantité */}
         <div className="flex items-center gap-6">
-          <div className="flex items-center border-2 border-gray-100 rounded-2xl p-1">
-            <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-10 h-10 font-bold">-</button>
-            <span className="w-12 text-center font-black">{quantity}</span>
-            <button onClick={() => setQuantity(quantity + 1)} className="w-10 h-10 font-bold">+</button>
-          </div>
-          
           <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full ${stock > 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
             <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">

@@ -39,7 +39,7 @@ export default function ServicesPage() {
     const fetchServices = async () => {
       try {
         const token = JSON.parse(localStorage.getItem("admin_token"));
-        const response = await axios.get(`${baseUrl}/api/admin/services`, {
+        const response = await axios.get(`${baseUrl}/api/home/all/services`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setServices(response.data?.data || []);
@@ -50,15 +50,6 @@ export default function ServicesPage() {
     fetchServices();
   }, [baseUrl]);
 
-  // 2. Détecter le changement de service pour afficher le prix
-  useEffect(() => {
-    if (formData.service_id) {
-      const service = services.find((s) => s.id == formData.service_id);
-      setSelectedServicePrice(service ? service.price : null);
-    } else {
-      setSelectedServicePrice(null);
-    }
-  }, [formData.service_id, services]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -121,14 +112,7 @@ export default function ServicesPage() {
               <label className="text-[10px] font-black uppercase text-gray-400 ml-2 italic">
                 Service souhaité *
               </label>
-              {/* AFFICHAGE DU PRIX DU SERVICE SÉLECTIONNÉ */}
-              {selectedServicePrice && (
-                <span className="text-xs font-black text-[#93b86a] bg-green-50 px-3 py-1 rounded-full border border-green-100 animate-pulse">
-                  Prix standard :{" "}
-                  {new Intl.NumberFormat("fr-FR").format(selectedServicePrice)}{" "}
-                  FCFA
-                </span>
-              )}
+             
             </div>
             <div className="relative">
               <select
@@ -224,7 +208,7 @@ export default function ServicesPage() {
           <div className="space-y-2">
             <div className="flex items-center gap-2 ml-2">
               <label className="text-[10px] font-black uppercase text-gray-400 italic">
-                Votre prix proposé (Optionnel)
+                Votre prix souhaité (Optionnel)
               </label>
               <div className="group relative">
                 <IoInformationCircleOutline className="text-gray-400 cursor-help" />

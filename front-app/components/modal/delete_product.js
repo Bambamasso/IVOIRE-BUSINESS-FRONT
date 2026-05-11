@@ -5,11 +5,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 
-export default function DeleteProduct({
-  isOpen,
-  onClose,
-  product_id,
-}) {
+export default function DeleteProduct({ isOpen, onClose, product_id }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -29,7 +25,7 @@ export default function DeleteProduct({
       }
 
       const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-      const url = `${baseUrl}/api/products/${product_id}`;
+      const url = `${baseUrl}/api/admin/products/${product_id}`;
 
       const response = await axios.delete(url, {
         headers: {
@@ -38,12 +34,11 @@ export default function DeleteProduct({
         },
       });
       if (response.data.status === "success") {
+        onClose();
         toast.success("Produit supprimé avec succès !");
-        router.push("/admin/products");
       }
       setLoading(false);
       onClose();
-      //   if (onConfirm) onConfirm();
     } catch (err) {
       setLoading(false);
       console.log(

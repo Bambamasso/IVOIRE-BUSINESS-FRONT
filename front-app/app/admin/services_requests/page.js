@@ -26,12 +26,7 @@ export default function ServicesRequestsPage() {
       color: "text-red-500",
     },
   ];
-  //   const tabs = [
-  //   { id: "pending", label: "En attente", color: "#f97316" }, // Orange pour attente
-  //   { id: "completed", label: "Terminées", color: "#93b86a" }, // Ton vert
-  //   { id: "rejected", label: "Refusées", color: "#ef4444" },   // Rouge
-  // ];
-
+ 
   const currentTab = tabs.find((t) => t.id === activeTab);
   return (
     <AdminLayout>

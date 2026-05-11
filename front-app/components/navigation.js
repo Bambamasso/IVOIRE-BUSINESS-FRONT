@@ -132,12 +132,12 @@ export default function Navbar() {
             >
               À Propos
             </Link>
-            <Link
+            {/* <Link
               href="/services"
               className="text-gray-600 hover:text-[#93b86a] font-medium transition-colors"
             >
               Services
-            </Link>
+            </Link> */}
             <Link
               href="/home/contact"
               className="text-gray-600 hover:text-[#93b86a] font-medium transition-colors"
@@ -169,7 +169,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-6">
             {/* Panier avec ton Doré #e8d393 */}
             <Link
-              href="../vente/cart"
+              href="/vente/cart"
               className="relative text-gray-700 hover:text-[#93b86a] transition-all p-2"
             >
               <SlBasket size={24} />

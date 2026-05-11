@@ -35,7 +35,7 @@ export default function AdminProductShow({ params }) {
   useEffect(() => {
     if (token) {
       axios
-        .get(`${baseUrl}/api/products/${id}`, {
+        .get(`${baseUrl}/api/admin/products/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -68,14 +68,6 @@ export default function AdminProductShow({ params }) {
           <div className="flex gap-4">
             <button className="flex items-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-2xl font-black text-xs uppercase tracking-widest transition-all">
               <RiEditBoxLine size={18} /> Modifier le produit
-            </button>
-            <button
-              onClick={() => {
-                setOpenDeleteModal(true);
-              }}
-              className="flex items-center gap-2 px-6 py-3 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all"
-            >
-              <RiDeleteBinLine size={18} /> Supprimer
             </button>
           </div>
         </div>
@@ -127,30 +119,83 @@ export default function AdminProductShow({ params }) {
             </section>
 
             {/* Section Variantes */}
-            <section className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 p-8">
-              <h3 className="text-xl font-black mb-6">Variantes disponibles</h3>
+            <section className="bg-white rounded-[2.5rem] border border-gray-100 p-8 shadow-sm">
+              <div className="flex justify-between items-center mb-8">
+                <h3 className="text-xl font-black text-gray-900">
+                  Variantes du produit
+                </h3>
+                <div className="px-4 py-1.5 bg-[#93b86a]/10 rounded-xl">
+                  <span className="text-[#93b86a] text-[10px] font-black uppercase tracking-widest">
+                    {product.variants?.length || 0} Combinaisons
+                  </span>
+                </div>
+              </div>
+
               <div className="space-y-4">
                 {(product.variants ?? []).map((v) => (
                   <div
                     key={v.id}
-                    className="flex justify-between items-center p-5 bg-gray-50 rounded-2xl"
+                    className="group flex flex-col md:flex-row justify-between items-start md:items-center p-6 bg-gray-50/50 hover:bg-white border border-transparent hover:border-gray-200 hover:shadow-xl hover:shadow-gray-200/40 rounded-[2rem] transition-all duration-300 gap-6"
                   >
-                    {(v.attributValues ?? []).map((av) => (
-                      <div key={av.id}>
-                        <span className="font-bold text-lg">{av.value}</span>
+                    {/* Caractéristiques de la variante */}
+                    <div className="flex flex-wrap gap-8">
+                      {(v.attribut_values ?? []).map((av) => (
+                        <div key={av.id} className="flex items-center gap-4">
+                          {/* Affichage de la pastille de couleur si c'est un attribut "Couleur" */}
+                          {av["hex-code"] && av["hex-code"] !== "#00000000" && (
+                            <div
+                              className="w-10 h-10 rounded-full border-4 border-white shadow-md"
+                              style={{ backgroundColor: av["hex-code"] }}
+                              title={av.value}
+                            />
+                          )}
 
-                        <p className="text-sm text-gray-500 font-medium">
-                          Référence :
+                          <div className="flex flex-col">
+                            {/* Le nom vient de av.attribute.name (ex: Couleur) */}
+                            <p className="text-[10px] text-[#93b86a] font-black uppercase tracking-[0.2em] mb-0.5">
+                              {av.attribute?.name || "Option"}
+                            </p>
+                            <p className="font-black text-gray-900 text-lg leading-tight">
+                              {av.value}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Prix et Stock */}
+                    <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 border-gray-100 pt-4 md:pt-0">
+                      <div className="text-right">
+                        <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">
+                          Disponibilité
                         </p>
+                        <span
+                          className={`text-sm font-black px-3 py-1 rounded-lg ${
+                            v.stock_quantity > 0
+                              ? "bg-white text-gray-900 border border-gray-100"
+                              : "bg-red-50 text-red-500"
+                          }`}
+                        >
+                          {v.stock_quantity || 0} unités
+                        </span>
                       </div>
-                    ))}
-                    <div className="text-right">
-                      <span className="block font-black text-[#93b86a]">
-                        {v.price || product.price} FCFA
-                      </span>
-                      <span className="text-xs font-bold px-2 py-1 bg-white rounded-lg border border-gray-200">
-                        Stock : {v.stock_quantity}
-                      </span>
+
+                      <div className="h-10 w-[1px] bg-gray-200 hidden md:block"></div>
+
+                      <div className="text-right">
+                        <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">
+                          Prix
+                        </p>
+                        <span className="text-xl font-black text-gray-900">
+                          {/* Utilise le prix de la variante, sinon celui du parent */}
+                          {new Intl.NumberFormat("fr-FR").format(
+                            v.price || product.price || 0,
+                          )}
+                          <span className="text-xs ml-1 text-gray-400 font-medium">
+                            FCFA
+                          </span>
+                        </span>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -161,46 +206,72 @@ export default function AdminProductShow({ params }) {
           {/* COLONNE DROITE : Infos clés (Sticky) */}
           <div className="lg:col-span-5">
             <div className="sticky top-8 space-y-6">
-              <div className="bg-gray-200 text-white p-10 rounded-[2.5rem] shadow-2xl">
-                {/* <span className="text-[#93b86a] font-black uppercase text-xs tracking-[0.2em]">{product.category}</span> */}
-                <h1 className="text-4xl font-black mt-2 leading-tight">
+              {/* Carte Noire Premium */}
+              <div className="bg-[#1a1a1a] p-10 rounded-[2.5rem] shadow-2xl shadow-black/10">
+                <span className="text-[#93b86a] font-black uppercase text-[10px] tracking-[0.3em]">
+                  {product.categorie?.name || "Produit standard"}
+                </span>
+
+                <h1 className="text-4xl font-black text-white mt-4 leading-tight">
                   {product.title}
                 </h1>
-                <p className="text-gray-400 mt-6 leading-relaxed">
+
+                <p className="text-gray-400 mt-6 leading-relaxed text-sm">
                   {product.description}
                 </p>
 
-                <div className="mt-10 pt-10 border-t border-white/10 grid grid-cols-2 gap-8">
+                <div className="mt-10 pt-10 border-t border-white/5 grid grid-cols-2 gap-8">
                   <div>
-                    <p className="text-gray-500 text-xs font-black uppercase tracking-widest">
+                    <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest">
                       Prix de base
                     </p>
                     <p className="text-3xl font-black text-[#93b86a] mt-1">
-                      {product.price} <span className="text-sm">FCFA</span>
+                      {new Intl.NumberFormat("fr-FR").format(product.price)}{" "}
+                      <span className="text-sm font-medium text-gray-500">
+                        FCFA
+                      </span>
                     </p>
                   </div>
                   <div>
-                    <p className="text-gray-500 text-xs font-black uppercase tracking-widest">
+                    <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest">
                       Stock Total
                     </p>
                     <p className="text-3xl font-black text-white mt-1">
-                      {product.stock_quantity}{" "}
-                      <span className="text-sm text-gray-500">Unités</span>
+                      {product.stock_quantity ||
+                        (product.variants ?? []).reduce(
+                          (acc, v) => acc + (v.stock_quantity || 0),
+                          0,
+                        )}
+                      <span className="text-sm font-medium text-gray-500 ml-2">
+                        Unités
+                      </span>
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Statut rapide */}
+              {/* Badge de statut rapide en dessous */}
+              <div className="bg-white border border-gray-100 p-6 rounded-3xl flex items-center justify-between">
+                <span className="text-gray-500 text-[10px] font-black uppercase tracking-widest">
+                  État du stock
+                </span>
+                <span
+                  className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                    product.stock_quantity > 0 || product.variants?.length > 0
+                      ? "bg-[#93b86a]/10 text-[#93b86a]"
+                      : "bg-red-100 text-red-600"
+                  }`}
+                >
+                  {product.stock_quantity > 0 || product.variants?.length > 0
+                    ? "Disponible"
+                    : "En rupture"}
+                </span>
+              </div>
             </div>
           </div>
         </div>
         {/* Modal de confirmation de suppression */}
-        <DeleteProduct
-          isOpen={openDeleteModal}
-          onClose={() => setOpenDeleteModal(false)}
-          product_id={product?.id}
-        />
+
         <DeleteMedia
           isOpen={openDeleteMediaModal}
           onClose={() => setOpenDeleteMediaModal(false)}

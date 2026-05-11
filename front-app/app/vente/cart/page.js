@@ -24,21 +24,11 @@ export default function CartPage() {
 
   // Recharger le panier si l'état d'authentification change
   useEffect(() => {
-    if (isAuthenticated) {
-      loadCartFromAPI();
-    } else {
+    
       loadCartFromLocalStorage();
-    }
-  }, [isAuthenticated, loadCartFromAPI, loadCartFromLocalStorage]);
+    
+  }, [loadCartFromAPI, loadCartFromLocalStorage]);
 
-  // const handleOrder = () => {
-  //   const token = localStorage.getItem("token");
-  //   if (!token) {
-  //     router.push(`/login?redirect=/cart`);
-  //     return;
-  //   }
-  //   router.push("/checkout");
-  // };
 
   const isEmpty = getTotalItems() === 0;
 

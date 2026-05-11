@@ -25,7 +25,7 @@ export default function CreateService({ onClose, openCreate, onRefresh }) {
     const loader = toast.loading("Création du service...");
 
     try {
-      // const stored = localStorage.getItem("admin_token");
+    
       const token = JSON.parse(localStorage.getItem("admin_token"));
 
       const response = await axios.post(
@@ -36,7 +36,7 @@ export default function CreateService({ onClose, openCreate, onRefresh }) {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (response.status === 201 || response.status === 200) {
@@ -46,13 +46,10 @@ export default function CreateService({ onClose, openCreate, onRefresh }) {
         setFormData({ name: "", price: "", description: "" }); // Reset
       }
     } catch (error) {
-      toast.dismiss(loader);
-      const message = error.response.data.message || "Erreur lors de l'ajout";
-      toast.error(message);
+      toast.error(error.response?.data?.message || "Erreur lors de la création du service.", )
+       console.error("Erreur lors de la création du service :", error.response?.data || error);
+      // Log uniquement si l'objet contient des champs utiles
       
-      if (error.response?.data?.errors) {
-        console.error("Champs invalides:", error.response.data.errors);
-      }
     } finally {
       setIsSubmitting(false);
     }
@@ -66,15 +63,29 @@ export default function CreateService({ onClose, openCreate, onRefresh }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center w-full h-full bg-black/60 backdrop-blur-sm p-4">
       <div className="relative bg-white rounded-[32px] shadow-2xl border border-gray-100 w-full max-w-md overflow-hidden">
-        
         <div className="h-2 bg-[#e8d393] w-full" />
 
         <div className="p-8">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-black text-gray-900">Ajouter un service</h3>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            <h3 className="text-xl font-black text-gray-900">
+              Ajouter un service
+            </h3>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
@@ -87,7 +98,7 @@ export default function CreateService({ onClose, openCreate, onRefresh }) {
               <input
                 type="text"
                 name="name" // Doit correspondre à la clé dans formData
-                required
+                // required
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Ex: Nettoyage de bureaux"

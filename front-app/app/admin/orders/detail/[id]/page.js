@@ -18,6 +18,7 @@ import {
   IoCard,
 } from "react-icons/io5";
 import toast from "react-hot-toast";
+import CancelOrder from "@/components/modal/cancel_order";
 
 export default function OrderDetailPage({ params }) {
   const { id } = React.use(params);
@@ -25,6 +26,7 @@ export default function OrderDetailPage({ params }) {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const [openCancelModal, setOpenCancelModal] = useState(false);
 
   // Fonction pour charger la commande
   const fetchOrder = useCallback(async () => {
@@ -49,6 +51,7 @@ export default function OrderDetailPage({ params }) {
   useEffect(() => {
     fetchOrder();
   }, [fetchOrder]);
+
   const getStatusStyle = (name) => {
     switch (name) {
       case "En attente":
@@ -79,7 +82,7 @@ export default function OrderDetailPage({ params }) {
 
       if (response.data.success) {
         toast.success(successMessage, { id: loadingToast });
-        fetchOrder(); // Actualisation automatique
+        fetchOrder();
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Une erreur est survenue", {
@@ -125,13 +128,17 @@ export default function OrderDetailPage({ params }) {
             </div>
           </div>
           {/* Badge de Paiement */}
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-[10px] font-black uppercase tracking-widest ${order?.payment_status?.name === 'Payé' ? 'bg-indigo-50 text-indigo-600 border-indigo-100' : 'bg-gray-50 text-gray-400 border-gray-100'}`}>
-              <IoCard size={14} /> {order?.payment_status?.name || 'Impayé'}
-            </div>
-            {/* Badge de Statut Commande */}
-            <div className={`px-5 py-2 rounded-full text-xs font-black uppercase tracking-wider border ${getStatusStyle(order?.status?.name)}`}>
-              {order?.status?.name}
-            </div>
+          <div
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-[10px] font-black uppercase tracking-widest ${order?.payment_status?.name === "Payé" ? "bg-indigo-50 text-indigo-600 border-indigo-100" : "bg-gray-50 text-gray-400 border-gray-100"}`}
+          >
+            <IoCard size={14} /> {order?.payment_status?.name || "Impayé"}
+          </div>
+          {/* Badge de Statut Commande */}
+          <div
+            className={`px-5 py-2 rounded-full text-xs font-black uppercase tracking-wider border ${getStatusStyle(order?.status?.name)}`}
+          >
+            {order?.status?.name}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -200,7 +207,11 @@ export default function OrderDetailPage({ params }) {
                   <div className="flex justify-between text-xl font-black pt-3 border-t border-gray-200">
                     <span className="text-gray-900">Total</span>
                     <span className="text-[#93b86a]">
-                      {parseInt(order?.total_amount || 0).toLocaleString()} FCFA
+                      {parseInt(
+                        order?.total_amount +
+                          (order?.municipality?.shipping_fee || 0) || 0,
+                      ).toLocaleString()}{" "}
+                      FCFA
                     </span>
                   </div>
                 </div>
@@ -274,7 +285,9 @@ export default function OrderDetailPage({ params }) {
                     <IoCheckmarkCircle size={20} /> VALIDER
                   </button>
                   <button
-                    onClick={() => handleAction("reject", "Commande annulée.")}
+                    onClick={() => {
+                      setOpenCancelModal(true);
+                    }}
                     className="w-full flex items-center justify-center gap-3 py-4 border-2 border-amber-100 text-amber-600 rounded-2xl font-black text-sm hover:bg-amber-50 transition-all"
                   >
                     <IoCloseCircle size={20} /> ANNULER
@@ -302,15 +315,21 @@ export default function OrderDetailPage({ params }) {
                 </div>
               )}
 
-              <div className="pt-4 mt-2 border-t border-gray-50">
+              {/* <div className="pt-4 mt-2 border-t border-gray-50">
                 <button className="w-full flex items-center justify-center gap-3 py-3 text-red-400 hover:text-red-600 font-bold text-xs transition-all uppercase tracking-widest">
                   <IoTrash size={16} /> Supprimer la fiche
                 </button>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
       </div>
+      <CancelOrder
+        openCancelModal={openCancelModal}
+        onClose={() => setOpenCancelModal(false)}
+        orderId={order?.id}
+        onRefresh={fetchOrder}
+      />
     </AdminLayout>
   );
 }

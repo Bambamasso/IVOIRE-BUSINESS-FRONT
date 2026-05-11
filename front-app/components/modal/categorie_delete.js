@@ -8,7 +8,7 @@ import toast, { Toaster } from "react-hot-toast";
 export default function DeleteCategorie({
   isOpen,
   onClose,
-  onConfirm,
+  refresh,
   categorie_id,
 }) {
   const router = useRouter();
@@ -30,7 +30,7 @@ export default function DeleteCategorie({
       }
 
       const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-      const url = `${baseUrl}/api/categories/${categorie_id}`;
+      const url = `${baseUrl}/api/admin/categories/${categorie_id}`;
 
       const response = await axios.delete(url, {
         headers: {
@@ -39,6 +39,8 @@ export default function DeleteCategorie({
         },
       });
       if (response.data.status === "success") {
+        onClose();
+        refresh();
         toast.success("Catégorie supprimé avec succès !");
       }
       setLoading(false);
@@ -47,6 +49,11 @@ export default function DeleteCategorie({
     } catch (err) {
       setLoading(false);
       console.log(
+        err?.response?.data?.message ||
+          err.message ||
+          "Erreur lors de la suppression",
+      );
+      toast.error(
         err?.response?.data?.message ||
           err.message ||
           "Erreur lors de la suppression",

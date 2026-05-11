@@ -8,7 +8,7 @@ import VariantManager from "./modal/variante_product";
 import ImageGallery from "./modal/media_product";
 import axios from "axios";
 
-export default function ProductForm({ isOpen, onClose }) {
+export default function ProductForm({ isOpen, onClose , refresh}) {
   const [activeTab, setActiveTab] = useState("info");
   const [loading, setLoading] = useState(false);
   const { formData, totalStock } = useProduct();
@@ -23,9 +23,6 @@ export default function ProductForm({ isOpen, onClose }) {
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
   const token = JSON.parse(localStorage.getItem("admin_token"));
   const handleSubmit = async () => {
-    if (!formData.title) return alert("Le nom du produit est requis.");
-    setLoading(true);
-
     try {
       const data = new FormData();
       data.append("title", formData.title);
@@ -49,19 +46,19 @@ export default function ProductForm({ isOpen, onClose }) {
       // Images
       formData.images.forEach((f) => data.append("files[]", f));
 
-      const response = await axios.post(`${BaseUrl}/api/products`, data, {
+      const response = await axios.post(`${BaseUrl}/api/admin/products`, data, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
       });
       toast.success("Produit enregistré avec succès !");
-
       onClose();
+
     } catch (err) {
-       console.error("Erreur lors de l'enregistrement :", err);
+      
       toast.error(
-        err?.response?.data?.message ||
+        err?.response?.data?.errors ||
           err.message ||
           "Une erreur est survenue.",
       );
