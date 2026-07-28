@@ -40,6 +40,7 @@ export default function OrderDetailPage({ params }) {
       });
       const data = response.data?.data || null;
       setOrder(data);
+      console.log("Détails de la commande :", data.status.name);
     } catch (error) {
       console.error("Erreur lors du chargement :", error);
       toast.error("Impossible de charger la commande.");
@@ -274,8 +275,11 @@ export default function OrderDetailPage({ params }) {
               <h3 className="font-bold text-gray-800 mb-2">Actions</h3>
 
               {/* Si En attente */}
-              {order?.status?.name === "En attente" && (
+             
+              {order.status.name === "En attente" && (
+                
                 <div className="space-y-3">
+                  
                   <button
                     onClick={() =>
                       handleAction("validate", "Commande validée !")
@@ -296,18 +300,18 @@ export default function OrderDetailPage({ params }) {
               )}
 
               {/* Si Validée */}
-              {order?.status?.name === "Validée" && (
+              {order?.status?.name === "Validé(e)" && (
                 <button
                   onClick={() => handleAction("deliver", "Commande livrée !")}
                   className="w-full flex items-center justify-center gap-3 py-4 bg-blue-500 text-white rounded-2xl font-black text-sm hover:scale-[1.02] transition-all shadow-lg shadow-blue-200"
                 >
-                  <IoBicycle size={20} /> MARQUER COMME LIVRÉE
+                MARQUER COMME LIVRÉE
                 </button>
               )}
 
               {/* Si Livrée ou Annulée */}
               {(order?.status?.name === "Livrée" ||
-                order?.status?.name === "Annulée") && (
+                order?.status?.name === "Annulé(e)") && (
                 <div className="py-4 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200">
                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">
                     Traitement Terminé
@@ -315,11 +319,6 @@ export default function OrderDetailPage({ params }) {
                 </div>
               )}
 
-              {/* <div className="pt-4 mt-2 border-t border-gray-50">
-                <button className="w-full flex items-center justify-center gap-3 py-3 text-red-400 hover:text-red-600 font-bold text-xs transition-all uppercase tracking-widest">
-                  <IoTrash size={16} /> Supprimer la fiche
-                </button>
-              </div> */}
             </div>
           </div>
         </div>

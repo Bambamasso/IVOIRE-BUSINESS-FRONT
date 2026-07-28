@@ -1,41 +1,26 @@
 "use client";
-import { FaRoad, FaWater, FaHardHat, FaTruckMoving, FaDraftingCompass, FaCity } from 'react-icons/fa';
-import motion from "./motion";
 
-const services = [
-  {
-    title: "Voirie Urbaine & Rurale",
-    desc: "Aménagement et entretien des voies pour assurer une circulation fluide et durable.",
-    icon: <FaRoad size={30} />,
-  },
-  {
-    title: "Ouverture de Voies",
-    desc: "Création de nouveaux accès et désenclavement de zones urbaines ou rurales.",
-    icon: <FaCity size={30} />,
-  },
-  {
-    title: "Assainissement & Évacuation",
-    desc: "Mise en place de réseaux d'eaux usées (EU) et d'eaux pluviales (EP) performants.",
-    icon: <FaWater size={30} />,
-  },
-  {
-    title: "Adduction en Eau Potable",
-    desc: "Installation de réseaux d'alimentation pour garantir l'accès à l'eau potable.",
-    icon: <FaDraftingCompass size={30} />,
-  },
-  {
-    title: "Terrassements Généraux",
-    desc: "Préparation rigoureuse des sols avant toute construction ou aménagement.",
-    icon: <FaHardHat size={30} />,
-  },
-  {
-    title: "Reprofilage de Routes",
-    desc: "Remise en état et reprofilage lourd ou léger pour la pérennité des pistes.",
-    icon: <FaTruckMoving size={30} />,
-  },
-];
+import motion from "./motion";
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+//
 
 export default function Expertise() {
+  const [services, setServices] = useState([]);
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const getServices = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/api/home/all/services`);
+      setServices(response.data?.data || []);
+      console.log("Services récupérés:", response.data?.data);
+    } catch (error) {
+      console.error("Erreur services:", error);
+    }
+  };
+  useEffect(() => {
+    getServices();
+  }, []);
   return (
     <motion.section
       className="py-20 bg-white"
@@ -46,14 +31,14 @@ export default function Expertise() {
       transition={{ duration: 0.8 }}
     >
       <div className="max-w-7xl mx-auto px-6">
-        
         {/* En-tête de section */}
         <div className="text-center mb-16">
           <h2 className="text-[#93b86a] font-bold uppercase tracking-widest text-sm mb-3">
             Nos Domaines d'Intervention
           </h2>
           <p className="text-3xl md:text-4xl font-black text-gray-800">
-            Une expertise complète en <br /> <span className="text-[#e8d393]">Aménagement & VRD</span>
+            Une expertise complète en <br />{" "}
+            <span className="text-[#e8d393]">Aménagement & VRD</span>
           </p>
           <div className="w-20 h-1.5 bg-[#93b86a] mx-auto mt-6 rounded-full"></div>
         </div>
@@ -61,23 +46,22 @@ export default function Expertise() {
         {/* Grille des services */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {services.map((service, index) => (
-            <div 
+            <div
               key={index}
-              className="p-8 bg-gray-50 rounded-2xl border border-transparent hover:border-[#93b86a]/30 hover:bg-white hover:shadow-xl transition-all duration-300 group"
+              className="p-8 bg-gray-50 rounded-2xl justify-center content border border-transparent hover:border-[#93b86a]/30 hover:bg-white hover:shadow-xl transition-all duration-300 group"
             >
-              <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center text-[#93b86a] shadow-sm mb-6 group-hover:bg-[#93b86a] group-hover:text-white transition-colors duration-300">
-                {service.icon}
+              <div className="w-14 h-14 bg-white rounded-xl border border-[#93b86a] flex items-center justify-center  text-[#e8d393]  mb-6 group-hover:bg-[#93b86a] group-hover:text-white transition-colors duration-300">
+                {service.name ? service.name.charAt(0).toUpperCase() : ""}
               </div>
               <h3 className="text-xl font-bold text-gray-800 mb-3 uppercase tracking-tight">
-                {service.title}
+                {service.name}
               </h3>
               <p className="text-gray-600 text-sm leading-relaxed">
-                {service.desc}
+                {service.description}
               </p>
             </div>
           ))}
         </div>
-
       </div>
     </motion.section>
   );

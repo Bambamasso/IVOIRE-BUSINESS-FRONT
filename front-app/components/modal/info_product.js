@@ -6,15 +6,15 @@ import { useEffect, useState } from "react";
 
 export default function GeneralInfo() {
   const [categories, setCategories] = useState([]);
-  const { formData, setFormData, totalStock } = useProduct();
-  const hasVariants = formData.variants.length > 0;
+  const { formData = {}, setFormData, totalStock } = useProduct();
+  const hasVariants = (formData?.variants || []).length > 0;
   useEffect(() => {
     const token = JSON.parse(localStorage.getItem("admin_token"));
     const getCategories = async () => {
       try {
         const baseUrl = process.env.NEXT_PUBLIC_API_URL;
         
-        const response = await axios.get(`${baseUrl}/api/admin/categories/all/gategories`, {
+        const response = await axios.get(`${baseUrl}/api/admin/categories/all/categories`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
@@ -42,7 +42,7 @@ export default function GeneralInfo() {
           Nom du produit
         </label>
         <input
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-normal"
           type="text"
           placeholder="ex : T-shirt coton premium"
           value={formData.title}
@@ -54,7 +54,7 @@ export default function GeneralInfo() {
       <div className="flex flex-col items-start gap-2 w-full">
         <label className="text-sm font-semibold text-gray-700">Catégorie</label>
         <select
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white font-normal"
           value={formData.category_id}
           onChange={(e) => update("category_id", e.target.value)}
         >
@@ -72,7 +72,7 @@ export default function GeneralInfo() {
           Description
         </label>
         <textarea
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-y min-h-[100px]"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-y min-h-[100px] font-normal"
           placeholder="Décrivez le produit..."
           rows={4}
           value={formData.description}
@@ -87,7 +87,7 @@ export default function GeneralInfo() {
             Prix (FCFA)
           </label>
           <input
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-normal"
             type="number"
             placeholder="0"
             value={formData.price}
@@ -108,7 +108,7 @@ export default function GeneralInfo() {
             className={`w-full px-3 py-2 border rounded-lg outline-none ${
               hasVariants
                 ? "bg-gray-50 border-dashed border-gray-300 text-gray-400 cursor-not-allowed"
-                : "border-gray-300 focus:ring-2 focus:ring-blue-500"
+                : "border-gray-300 focus:ring-2 focus:ring-blue-500 font-normal"
             }`}
             type="number"
             disabled={hasVariants}
@@ -117,7 +117,7 @@ export default function GeneralInfo() {
           />
           {hasVariants && (
             <p className="text-[11px] text-gray-400 mt-1">
-              Basé sur {formData.variants.length} variante(s)
+              Basé sur {(formData?.variants || []).length} variante(s)
             </p>
           )}
         </div>

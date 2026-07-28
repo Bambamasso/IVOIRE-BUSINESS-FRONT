@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 export default function SuccessModal({ show, onClose }) {
   if (!show) return null;
 
@@ -24,12 +26,12 @@ export default function SuccessModal({ show, onClose }) {
             >
               Continuer mes achats
             </button>
-            <button
-              onClick={() => window.location.href = '/cart'}
+            <Link href="/vente/cart"
+             
               className="flex-1 bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
             >
               Voir le panier
-            </button>
+            </Link>
           </div>
         </div>
       </div>

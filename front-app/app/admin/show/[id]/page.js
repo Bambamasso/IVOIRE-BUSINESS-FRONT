@@ -13,6 +13,7 @@ import * as React from "react";
 import DeleteProduct from "@/components/modal/delete_product";
 import DeleteMedia from "@/components/modal/delete_media";
 import CreateMedia from "@/components/modal/add_media";
+import EditProduct from "@/components/edit_product";
 
 export default function AdminProductShow({ params }) {
   const { id } = React.use(params);
@@ -20,7 +21,7 @@ export default function AdminProductShow({ params }) {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
   const [token, setToken] = useState(null);
   const [product, setProduct] = useState(null);
-  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [openEditModal, setOpenEditModal] = useState(false);
   const [openDeleteMediaModal, setOpenDeleteMediaModal] = useState(false);
   const [selectedMediaId, setSelectedMediaId] = useState(null);
   const [openAddMediaModal, setOpenAddMediaModal] = useState(false);
@@ -51,7 +52,11 @@ export default function AdminProductShow({ params }) {
   }, [token]);
 
   if (!product) {
-    return <div>Chargement...</div>;
+    return (
+      <AdminLayout>
+        <div className="p-10 text-center font-bold">Chargement...</div>
+      </AdminLayout>
+    );
   }
 
   return (
@@ -66,7 +71,7 @@ export default function AdminProductShow({ params }) {
             <RiArrowLeftLine size={20} /> Retour aux produits
           </Link>
           <div className="flex gap-4">
-            <button className="flex items-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-2xl font-black text-xs uppercase tracking-widest transition-all">
+            <button  onClick={()=>setOpenEditModal(true)} className="flex items-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-2xl font-black text-xs uppercase tracking-widest transition-all">
               <RiEditBoxLine size={18} /> Modifier le produit
             </button>
           </div>
@@ -216,7 +221,7 @@ export default function AdminProductShow({ params }) {
                   {product.title}
                 </h1>
 
-                <p className="text-gray-400 mt-6 leading-relaxed text-sm">
+                <p className="text-gray-400 mt-6 leading-relaxed text-sm break-words max-h-40 overflow-auto">
                   {product.description}
                 </p>
 
@@ -284,6 +289,12 @@ export default function AdminProductShow({ params }) {
           onClose={() => setOpenAddMediaModal(false)}
           product_id={product?.id}
         />
+         <EditProduct 
+         isOpen={openEditModal}
+         onClose={()=>setOpenEditModal(false)}
+         product={product}
+         
+         />
       </div>
     </AdminLayout>
   );

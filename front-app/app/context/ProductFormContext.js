@@ -15,8 +15,9 @@ export function ProductProvider({ children }) {
     images: [],
   });
 
-  const totalStock = formData.variants.reduce(
-    (acc, v) => acc + (Number(v.stock_quantity) || 0), 0
+  const totalStock = (formData?.variants || []).reduce(
+    (acc, v) => acc + (Number(v.stock_quantity) || 0),
+    0
   );
 
   return (

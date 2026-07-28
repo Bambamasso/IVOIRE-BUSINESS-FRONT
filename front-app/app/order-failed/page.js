@@ -45,11 +45,11 @@ export default function OrderFailed() {
             Réessayer le paiement
           </Link>
           <Link
-            href="tel:+22500000000"
+            href="/"
             className="flex items-center justify-center gap-2 w-full text-gray-500 hover:text-gray-800 font-semibold text-sm transition-colors"
           >
             <SlPhone size={14} />
-            Contacter le support
+            Retour à l'accueil
           </Link>
         </div>
       </div>

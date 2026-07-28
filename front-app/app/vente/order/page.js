@@ -8,6 +8,8 @@ import { SlBasket, SlCreditCard, SlLocationPin, SlPhone } from "react-icons/sl";
 import Footer from "@/components/footer";
 import { useCart } from "@/app/context/CartContext";
 import toast, { Toaster } from "react-hot-toast";
+import useRecaptcha from "@/app/hooks/useRecaptcha";
+import Script from "next/script";
 
 export default function OrderPage() {
   const [loading, setLoading] = useState(false);
@@ -22,6 +24,7 @@ export default function OrderPage() {
   const [address, setAdress] = useState("");
   const [phone_number, setPhoneNumber] = useState("");
   const [payment_method, setPaymentMethod] = useState("cash_on_delivery");
+  const { getRecaptchaToken } = useRecaptcha();
 
   const selectedMunicipality = municipalities.find(
     (m) => m.id === municipality_id,
@@ -98,6 +101,7 @@ export default function OrderPage() {
       phone_number,
       payment_method,
       address,
+      recaptcha_token: recaptchaToken,
     };
 
     const rawToken = localStorage.getItem("token");
@@ -111,7 +115,11 @@ export default function OrderPage() {
         price: item.price,
       }));
     }
+    // payload.append("recaptcha_token", recaptchaToken);
+
     try {
+      const recaptchaToken = await getRecaptchaToken("order");
+
       const response = await axios.post(`${baseUrl}/api/orders`, orderData, {
         headers: {
           "Content-Type": "application/json",
@@ -134,7 +142,7 @@ export default function OrderPage() {
       }
     } catch (error) {
       const message =
-        error?.response?.data?.message ||
+        error?.response?.data?.errors ||
         error?.message ||
         "Erreur lors de la création de la commande";
       toast.error(message);
@@ -145,6 +153,10 @@ export default function OrderPage() {
   };
   return (
     <>
+      <Script
+        src={`https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`}
+        strategy="afterInteractive"
+      />
       <Navbar />
       <div className="bg-gray-50 min-h-screen pb-20">
         <div className="max-w-6xl mx-auto p-4 md:p-10">
@@ -435,11 +447,8 @@ export default function OrderPage() {
               </div>
             </div>
           </div>{" "}
-         
         </div>{" "}
-       
       </div>{" "}
-      
       <Footer />
       <Toaster position="top-center" />
     </>

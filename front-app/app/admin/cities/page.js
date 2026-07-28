@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import axios from "axios";
 import { useEffect, useState } from "react";
 import AdminLayout from "../layaut";
@@ -34,11 +34,10 @@ export default function CitiesPage(){
   useEffect(() => {
     fetchCities();
   }, []);
-     return (
+  return (
     <AdminLayout>
-      <div className="p-8 bg-white rounded-[32px] shadow-sm border border-gray-50">
-        {/* Header du tableau */}
-        <div className="flex justify-between items-center mb-8">
+      <div className="space-y-6">
+        <div className="flex justify-between items-end mb-4">
           <div>
             <h1 className="text-2xl font-black text-gray-900">
               Gestion des Villes
@@ -47,67 +46,66 @@ export default function CitiesPage(){
               Catalogue des villes
             </p>
           </div>
-          <button 
-           onClick={()=>setOpenCreate(true)} 
-          className="flex items-center gap-2 bg-[#93b86a] text-white px-6 py-3 rounded-2xl font-black text-xs shadow-lg shadow-[#93b86a]/20 hover:scale-105 transition-transform">
+          <button
+            onClick={() => setOpenCreate(true)}
+            className="flex items-center gap-2 bg-[#93b86a] text-white px-6 py-3 rounded-2xl font-black text-xs shadow-lg shadow-[#93b86a]/20 hover:scale-105 transition-transform"
+          >
             <IoAdd size={18} /> AJOUTER UNE VILLE
           </button>
         </div>
 
-        {/* Le Tableau */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-separate border-spacing-y-3">
+        <div className="bg-white rounded-4xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="text-[10px] font-black uppercase text-gray-400 tracking-widest">
-                <th className="px-6 py-4">Nom</th>
-                
+              <tr className="bg-gray-50/50 border-b border-gray-200 text-[10px] font-black uppercase text-gray-500 tracking-widest">
+                <th className="px-8 py-6">Nom</th>
+                <th className="px-8 py-6 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-200">
               {loading ? (
                 <tr>
                   <td
-                    colSpan="4"
-                    className="text-center py-10 text-gray-400 font-medium"
+                    colSpan="2"
+                    className="px-8 py-20 text-center text-gray-400 font-bold italic"
                   >
-                    Chargement des villes...
+                    Chargement ...
                   </td>
                 </tr>
               ) : cities.length > 0 ? (
                 cities.map((city) => (
                   <tr
                     key={city.id}
-                    className="group bg-gray-50/50 hover:bg-white hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300"
+                    className="group hover:bg-[#93b86a]/5 transition-colors"
                   >
-                    {/* NOM */}
-                    <td className="px-6 py-5 rounded-l-2xl">
-                      <span className="text-sm font-black text-gray-800">
+                    <td className="px-8 py-5">
+                      <span className="text-sm font-black text-gray-900 leading-tight">
                         {city.name}
                       </span>
                     </td>
 
-                    {/* ACTIONS */}
-                    <td className="px-6 py-5 rounded-r-2xl text-right">
+                    <td className="px-8 py-5 text-right">
                       <div className="flex justify-end gap-2">
                         <button
                           onClick={() => {
-                            setSelectedServiceId(service.id);
+                            setSelectedServiceId(city.id);
                             setOpenEdit(true);
                           }}
-                          className="p-2 bg-white text-gray-400 hover:text-[#93b86a] rounded-xl border border-gray-100 shadow-sm transition-colors"
+                          className="w-10 h-10 inline-flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-[#93b86a] hover:border-[#93b86a] shadow-sm transition-all"
                           title="Modifier"
                         >
-                          <IoPencil size={16} />
+                          <IoPencil size={18} />
                         </button>
                         <button
                           onClick={() => {
-                            setSelectedServiceId(service.id);
+                            setSelectedServiceId(city.id);
                             setOpenDelete(true);
                           }}
-                          className="p-2 bg-white text-gray-400 hover:text-red-500 rounded-xl border border-gray-100 shadow-sm transition-colors"
+                          className="w-10 h-10 inline-flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 shadow-sm transition-all"
                           title="Supprimer"
                         >
-                          <IoTrash size={16} />
+                          <IoTrash size={18} />
                         </button>
                       </div>
                     </td>
@@ -116,8 +114,8 @@ export default function CitiesPage(){
               ) : (
                 <tr>
                   <td
-                    colSpan="4"
-                    className="text-center py-10 text-gray-400 font-medium"
+                    colSpan="2"
+                    className="px-8 py-20 text-center text-gray-400 font-bold italic"
                   >
                     Aucune ville trouvée.
                   </td>
@@ -125,6 +123,7 @@ export default function CitiesPage(){
               )}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 

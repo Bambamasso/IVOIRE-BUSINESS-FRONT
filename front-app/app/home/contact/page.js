@@ -2,6 +2,9 @@
 
 import Footer from "@/components/footer";
 import Navbar from "@/components/navigation";
+import axios from "axios";
+import { useState } from "react";
+import toast from "react-hot-toast";
 import {
   FaPhone,
   FaEnvelope,
@@ -11,10 +14,38 @@ import {
 } from "react-icons/fa";
 
 export default function ContactPage() {
-  const handleSubmit = (e) => {
+ const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+   const [form, setForm] = useState({
+    full_name: "",
+    email: "",
+    phone_number: "",
+    subject: "",
+    message: "",
+  });
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Ta logique d'envoi d'email via Laravel ici
-    console.log("Formulaire envoyé");
+    try{
+      const response = await axios.post(`${baseUrl}/api/home/contact`,form,{
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      });
+     if(response.status===200){
+      toast.success(response.data.message)
+      
+     }
+
+    }catch(error){
+      console.error("Error submitting form:", error);
+      toast.error(response.data.error || "Erreur lors de l'envoi du message.");
+    }
+    
   };
 
   return (
@@ -66,7 +97,7 @@ export default function ContactPage() {
                         Email
                       </p>
                       <p className="text-gray-800 font-semibold">
-                        Intellectstores@gmail.com
+                        intellectstores@gmail.com
                       </p>
                     </div>
                   </div>
@@ -118,7 +149,7 @@ export default function ContactPage() {
                 Envoyez-nous un message
               </h3>
 
-              <form
+               <form
                 onSubmit={handleSubmit}
                 className="grid grid-cols-1 md:grid-cols-2 gap-6"
               >
@@ -128,18 +159,41 @@ export default function ContactPage() {
                   </label>
                   <input
                     type="text"
+                    name="full_name"
+                    value={form.full_name}
+                    onChange={handleChange}
                     placeholder="Ex: Jean Kouassi"
+                    required
                     className="w-full px-5 py-3 rounded-xl border border-gray-200 focus:border-[#93b86a] focus:ring-2 focus:ring-[#93b86a]/20 outline-none transition-all bg-white"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-500 uppercase ml-1">
-                    Email / Téléphone
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    placeholder="Ex: jean@email.com"
+                    required
+                    className="w-full px-5 py-3 rounded-xl border border-gray-200 focus:border-[#93b86a] focus:ring-2 focus:ring-[#93b86a]/20 outline-none transition-all bg-white"
+                  />
+                </div>
+
+                <div className="md:col-span-2 space-y-2">
+                  <label className="text-xs font-bold text-gray-500 uppercase ml-1">
+                    Téléphone
                   </label>
                   <input
                     type="text"
-                    placeholder="Ex: +225..."
+                    name="phone_number"
+                    value={form.phone_number}
+                    onChange={handleChange}
+                    placeholder="Ex: +225 01 02 03 04 05"
+                    required
                     className="w-full px-5 py-3 rounded-xl border border-gray-200 focus:border-[#93b86a] focus:ring-2 focus:ring-[#93b86a]/20 outline-none transition-all bg-white"
                   />
                 </div>
@@ -148,12 +202,15 @@ export default function ContactPage() {
                   <label className="text-xs font-bold text-gray-500 uppercase ml-1">
                     Objet de votre demande
                   </label>
-                  <select className="w-full px-5 py-3 rounded-xl border border-gray-200 focus:border-[#93b86a] outline-none bg-white">
-                    <option>Demande de devis (VRD/BTP)</option>
-                    <option>Achat de produits (Boutique)</option>
-                    <option>Partenariat</option>
-                    <option>Autre</option>
-                  </select>
+                  <input
+                    type="text"
+                    name="subject"
+                    value={form.subject}
+                    onChange={handleChange}
+                    placeholder="Ex: Demande de devis"
+                    required
+                    className="w-full px-5 py-3 rounded-xl border border-gray-200 focus:border-[#93b86a] focus:ring-2 focus:ring-[#93b86a]/20 outline-none transition-all bg-white"
+                  />
                 </div>
 
                 <div className="md:col-span-2 space-y-2">
@@ -161,19 +218,25 @@ export default function ContactPage() {
                     Votre message
                   </label>
                   <textarea
-                    rows="5"
+                    name="message"
+                    value={form.message}
+                    onChange={handleChange}
+                    rows={5}
                     placeholder="Décrivez votre besoin ici..."
+                    required
                     className="w-full px-5 py-3 rounded-xl border border-gray-200 focus:border-[#93b86a] outline-none transition-all bg-white"
                   ></textarea>
                 </div>
 
-                <div className="md:col-span-2">
+                <div className="md:col-span-2 space-y-3">
                   <button
                     type="submit"
-                    className="w-full md:w-auto px-10 py-4 bg-[#93b86a] text-white font-black rounded-xl hover:bg-[#e8d393] hover:text-gray-800 transition-all shadow-md uppercase tracking-widest text-sm"
+                    
+                    className="w-full md:w-auto px-10 py-4 bg-[#93b86a] text-white font-black rounded-xl hover:bg-[#e8d393] hover:text-gray-800 transition-all shadow-md uppercase tracking-widest text-sm disabled:opacity-50"
                   >
-                    Envoyer la demande
+                    Envoyer le message
                   </button>
+
                 </div>
               </form>
             </div>

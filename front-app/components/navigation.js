@@ -30,7 +30,7 @@ export default function Navbar() {
     setIsAuthenticated(!!storedToken);
 
     // Pousse un état dans l'historique pour bloquer le retour après logout
-    window.history.pushState(null, "", window.location.href);
+    // window.history.pushState(null, "", window.location.href);
 
     const handlePopState = () => {
       const token = localStorage.getItem("token");
@@ -127,7 +127,7 @@ export default function Navbar() {
           {/* Menu Desktop */}
           <div className="hidden md:flex items-center space-x-8 flex-1 ml-12">
             <Link
-              href="#about"
+              href="/home/about"
               className="text-gray-600 hover:text-[#93b86a] font-medium transition-colors"
             >
               À Propos
@@ -146,7 +146,7 @@ export default function Navbar() {
             </Link>
 
             {/* Barre de recherche stylisée */}
-            <form onSubmit={handleSearch} className="relative flex-1 max-w-xs">
+            {/* <form onSubmit={handleSearch} className="relative flex-1 max-w-xs">
               <div className="flex items-center bg-gray-50 border border-gray-200 rounded-full px-4 py-1.5 focus-within:border-[#93b86a] transition-all">
                 <input
                   type="text"
@@ -162,7 +162,7 @@ export default function Navbar() {
                   <CiSearch size={20} />
                 </button>
               </div>
-            </form>
+            </form> */}
           </div>
 
           {/* Actions à droite */}

@@ -3,19 +3,18 @@
 import { useProduct } from "../../app/context/ProductFormContext";
 
 export default function ImageGallery() {
-  const { formData, setFormData } = useProduct();
+  const { formData = {}, setFormData } = useProduct();
 
   const handleFiles = (files) => {
-    const newFiles = Array.from(files).filter(
-      (f) => !formData.images.find((i) => i.name === f.name),
-    );
-    setFormData((prev) => ({ ...prev, images: [...prev.images, ...newFiles] }));
+    const existingNames = (formData?.images || []).map((i) => i.name);
+    const newFiles = Array.from(files).filter((f) => !existingNames.includes(f.name));
+    setFormData((prev) => ({ ...prev, images: [...(prev?.images || []), ...newFiles] }));
   };
 
   const removeFile = (name) => {
     setFormData((prev) => ({
       ...prev,
-      images: prev.images.filter((f) => f.name !== name),
+      images: (prev?.images || []).filter((f) => f.name !== name),
     }));
   };
 
@@ -52,14 +51,14 @@ export default function ImageGallery() {
       </div>
 
       {/* Liste des fichiers sélectionnés */}
-      {formData.images.length > 0 && (
+      {(formData?.images || []).length > 0 && (
         <div className="flex flex-col gap-3">
           <h3 className="text-xs font-bold text-gray-500 px-1 uppercase tracking-widest">
-            Fichiers sélectionnés ({formData.images.length})
+            Fichiers sélectionnés ({(formData?.images || []).length})
           </h3>
 
           <div className="grid grid-cols-1 gap-3">
-            {formData.images.map((f, index) => (
+            {(formData?.images || []).map((f, index) => (
               <div
                 key={index}
                 className="flex items-center justify-between p-3 bg-white border border-green-200 rounded-xl hover:shadow-md transition-shadow"

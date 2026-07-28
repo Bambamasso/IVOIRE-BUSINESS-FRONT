@@ -86,7 +86,7 @@ export default function EditService({ onClose, openEdit, serviceId, onRefresh,se
               required
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#93b86a]/20 transition-all"
+              className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-normal outline-none focus:ring-2 focus:ring-[#93b86a]/20 transition-all"
             />
           </div>
 
@@ -99,7 +99,7 @@ export default function EditService({ onClose, openEdit, serviceId, onRefresh,se
               required
               value={formData.price}
               onChange={handleChange}
-              className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#93b86a]/20 transition-all"
+              className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-normal outline-none focus:ring-2 focus:ring-[#93b86a]/20 transition-all"
             />
           </div>
 
@@ -111,7 +111,7 @@ export default function EditService({ onClose, openEdit, serviceId, onRefresh,se
               rows="4"
               value={formData.description}
               onChange={handleChange}
-              className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#93b86a]/20 transition-all resize-none"
+              className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-normal outline-none focus:ring-2 focus:ring-[#93b86a]/20 transition-all resize-none"
             />
           </div>
 

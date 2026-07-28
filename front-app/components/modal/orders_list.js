@@ -50,7 +50,16 @@ export default function OrdersList({ route, statusColor }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {orders.length > 0 ? (
+              {loading ? (
+                <tr>
+                  <td
+                    colSpan="6"
+                    className="px-8 py-20 text-center text-gray-400 font-bold italic"
+                  >
+                    Chargement ...
+                  </td>
+                </tr>
+              ) : orders.length > 0 ? (
                 orders.map((order) => (
                   <tr
                     key={order.id}

@@ -2,42 +2,39 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-
-const slides = [
-  {
-    image: '/images/imageShop1.jpeg', // Idéalement une image de goudronnage ou d'ouverture de voie
-    title: "Expertise en Voirie et Réseaux Divers (VRD)",
-    text: "Depuis 2021, nous bâtissons l'infrastructure de demain avec rigueur et professionnalisme sur l'ensemble du territoire ivoirien.",
-    ctaLabel: "Nos Réalisations",
-    ctaHref: "#realisations", // On pourra lier vers ta future section 5
-  },
-  {
-    image: '/images/imageShop2.jpeg', // Idéalement une image de tes bulldozers ou pelles mécaniques
-    title: "Aménagement Urbain & Rural",
-    text: "Ouverture de voies, reprofilage et terrassement. Nous transformons vos terrains en espaces prêts pour le développement.",
-    ctaLabel: "Demander un Devis",
-    ctaHref: "/contact",
-  },
-  {
-    image: '/images/imageShop3.jpeg', // Idéalement une image de l'équipe technique
-    title: "Qualité, Sécurité & Environnement",
-    text: "La satisfaction client est notre cheval de bataille. Nous respectons les normes techniques les plus strictes pour chaque projet.",
-    ctaLabel: "À propos de Int I-B",
-    ctaHref: "#about",
-  },
-];
+import axios from 'axios';
 
 export default function HeroSlider() {
   const [index, setIndex] = useState(0);
+  const [slides, setSlides] = useState([]);
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  // console.log('ddfer',baseUrl);
+  const getSlides = async () => {
+    try{
+      
+      const response= await axios.get(`${baseUrl}/api/home/media-slides`
+      )
+        const data = response.data.data || [];
+        setSlides(data);
+    }catch(error){
 
+    }
+  }
   useEffect(() => {
-    const id = setInterval(() => {
-      setIndex((prev) => (prev + 1) % slides.length);
-    }, 6000); // Un peu plus lent pour laisser le temps de lire les textes techniques
-    return () => clearInterval(id);
+    // Récupération des slides depuis l'API au montage
+    getSlides();
   }, []);
 
-  const current = slides[index];
+  useEffect(() => {
+    if (slides.length === 0) return;
+    const id = setInterval(() => {
+      setIndex((prev) => (prev + 1) % slides.length);
+    }, 6000);
+    return () => clearInterval(id);
+  }, [slides]);
+
+  const current = slides[index] || {};
+  // console.log("Slide actuel:", current);
 
   return (
     <section className="relative w-full h-[450px] sm:h-[550px] lg:h-[650px] overflow-hidden bg-gray-900">
@@ -53,7 +50,7 @@ export default function HeroSlider() {
           <div
             className="w-full h-full bg-center bg-cover scale-105 transition-transform duration-[6000ms]"
             style={{ 
-              backgroundImage: `url(${slide.image})`,
+              backgroundImage: `url( ${baseUrl}/storage/${slide.media[0].file_path})`,
               transform: i === index ? 'scale(1)' : 'scale(1.05)' 
             }}
           />
@@ -75,7 +72,7 @@ export default function HeroSlider() {
           </h1>
           
           <p className="text-base sm:text-lg text-gray-200 mb-8 max-w-lg leading-relaxed drop-shadow">
-            {current.text}
+            {current.description}
           </p>
 
           <div className="flex flex-wrap gap-4">
@@ -91,7 +88,7 @@ export default function HeroSlider() {
               href="/vente"
               className="inline-flex items-center justify-center px-8 py-3 rounded-md border-2 border-white text-white font-bold hover:bg-white hover:text-black transition-all"
             >
-              Vente
+              Commerce
             </Link>
           </div>
         </div>

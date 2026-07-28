@@ -29,7 +29,7 @@ export default async function Show({ params }) {
   return (
     <>
       <Navbar />
-      <div className="max-w-7xl mx-auto p-6 bg-white">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 bg-white overflow-x-hidden">
         <div className="mb-6">
           <a
             href="/vente"
@@ -39,11 +39,11 @@ export default async function Show({ params }) {
             ← Retour à la boutique
           </a>
         </div>
-        <div className="flex flex-col md:flex-row gap-8 items-start">
-          <div className="w-full md:w-[560px] flex-shrink-0">
+        <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-start w-full min-w-0">
+          <div className="w-full md:w-[560px] max-w-full shrink-0 min-w-0">
             <ProductGallery images={images} />
           </div>
-          <div className="flex-1">
+          <div className="flex-1 w-full min-w-0 max-w-full">
             <ProductInfo product={product}
             />
           </div>

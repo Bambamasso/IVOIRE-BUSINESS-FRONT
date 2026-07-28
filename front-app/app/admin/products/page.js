@@ -3,14 +3,15 @@ import { useState, useEffect } from "react";
 import AdminLayout from "../layaut";
 import ProductForm from "@/components/product_form";
 import { RiAddLine, RiSearchLine, RiEyeLine } from "react-icons/ri";
-import axios from "axios";
-import Link from "next/link";
 import ProductList from "@/components/modal/product_list";
+
+import axios from "axios";
 
 export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [handelOpenModal, setHandleOpenModal] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
+  const [refreshFlag, setRefreshFlag] = useState(0);
   const tabs = [
     {
       id: "all",
@@ -32,7 +33,13 @@ export default function ProductsPage() {
     },
   ];
 
+
   const currentTab = tabs.find((t) => t.id === activeTab);
+
+  // Fonction pour forcer le rafraîchissement de ProductList
+  const fetchProducts = () => {
+    setRefreshFlag((prev) => prev + 1);
+  };
 
   return (
     <AdminLayout>
@@ -73,10 +80,11 @@ export default function ProductsPage() {
           </div>
         </div>
 
+
         <ProductForm
           isOpen={handelOpenModal}
           onClose={() => setHandleOpenModal(false)}
-          // refresh={fetchProducts}
+          refresh={fetchProducts}
         />
 
         <div className="space-y-8">
@@ -101,6 +109,7 @@ export default function ProductsPage() {
            <ProductList
                   route={currentTab.route}
                   statusColor={currentTab.color}
+                  refreshFlag={refreshFlag}
                 /> 
         </div>
       </div>

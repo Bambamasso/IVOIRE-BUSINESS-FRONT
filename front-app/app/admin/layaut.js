@@ -3,14 +3,13 @@
 import axios from "axios";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useMemo } from "react";
-// Import des icônes depuis React Icons (pack Remix Icon)
+import { useState, useMemo, useEffect } from "react";
+// Import des icônes
 import { PiPackageLight } from "react-icons/pi";
 import { MdRequestPage } from "react-icons/md";
 import {
   RiDashboardFill,
   RiUserLine,
-  RiPriceTag3Line,
   RiSettings4Line,
   RiArrowRightSLine,
   RiLogoutBoxRLine,
@@ -26,38 +25,59 @@ const adminMenu = [
     label: "Demande de services",
     icon: MdRequestPage,
   },
-  { href: "/admin/users_manager", label: "Utilisateurs", icon: RiUserLine },
+  // { href: "/admin/users_manager", label: "Utilisateurs", icon: RiUserLine },
 ];
 
-// Sous-menu pour les paramètres
 const settingsSubMenu = [
   { href: "/admin/categories", label: "Catégories" },
   { href: "/admin/services", label: "Services" },
+   { href: "/admin/projects", label: "Projets" },
+  { href: "/admin/silder", label: "Bannières" },
+ 
 ];
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
+
+  // États de sécurité
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // 1. VERIFICATION DE L'AUTHENTIFICATION AU MONTAGE
+  useEffect(() => {
+    const checkAuth = () => {
+      const stored = localStorage.getItem("admin_token");
+      if (!stored) {
+        router.replace("/admin/login");
+      } else {
+        setIsAuthenticated(true);
+      }
+      setLoading(false);
+    };
+
+    checkAuth();
+  }, [router]);
 
   // État pour ouvrir/fermer le menu paramètres
   const [isSettingsOpen, setIsSettingsOpen] = useState(
     pathname.includes("/admin/categories") ||
-      pathname.includes("/admin/services"),
+    pathname.includes("/admin/services"),
   );
 
-  // Titre dynamique (incluant les sous-menus)
+  // Titre dynamique
   const currentPageTitle = useMemo(() => {
     const allItems = [...adminMenu, ...settingsSubMenu];
     const current = allItems.find((item) => pathname.startsWith(item.href));
     return current ? current.label : "Administration";
   }, [pathname]);
 
+  // 2. LOGIQUE DE DÉCONNEXION RENFORCÉE
   const handleLogout = async (e) => {
     e.preventDefault();
-    if (!confirm("Voulez-vous vraiment vous déconnecter ?")) return;
-
     setIsLoggingOut(true);
+
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
     const stored = localStorage.getItem("admin_token");
     let token = null;
@@ -82,16 +102,31 @@ export default function AdminLayout({ children }) {
         );
       }
     } catch (error) {
-      console.error("Erreur lors de la déconnexion", error);
+      console.error("Erreur lors de la déconnexion API", error);
     } finally {
       localStorage.removeItem("admin_token");
-      router.push("/admin/login");
-      setIsLoggingOut(false);
+      window.location.href = "/admin/login";
     }
   };
 
+  // Affichage d'un écran de chargement neutre pour éviter de voir le dashbord sans accès
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-[#93b86a] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-gray-400 font-medium animate-pulse">
+            Vérification de l'accès...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) return null;
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-gray-950 flex font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-gray-950 flex font-sans text-gray-900">
       {/* Sidebar */}
       <aside className="hidden md:flex md:w-72 flex-col bg-gray-900 text-gray-100 shadow-xl border-r border-gray-800">
         <div className="h-20 flex items-center px-8 border-b border-gray-800/50">
@@ -110,7 +145,6 @@ export default function AdminLayout({ children }) {
             Menu Principal
           </p>
 
-          {/* Menu standard */}
           {adminMenu.map((item) => {
             const Icon = item.icon;
             const active = pathname.startsWith(item.href);
@@ -138,7 +172,6 @@ export default function AdminLayout({ children }) {
             );
           })}
 
-          {/* SECTION PARAMÈTRES (ACCORDÉON) */}
           <div className="pt-4">
             <button
               onClick={() => setIsSettingsOpen(!isSettingsOpen)}
@@ -158,9 +191,10 @@ export default function AdminLayout({ children }) {
               />
             </button>
 
-            {/* Sous-menu animé */}
             <div
-              className={`mt-2 ml-9 space-y-1 overflow-hidden transition-all duration-300 ${isSettingsOpen ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}
+              className={`mt-2 ml-9 space-y-1 overflow-hidden transition-all duration-300 ${
+                isSettingsOpen ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+              }`}
             >
               {settingsSubMenu.map((subItem) => {
                 const subActive = pathname === subItem.href;
@@ -191,7 +225,6 @@ export default function AdminLayout({ children }) {
             <RiLogoutBoxRLine size={20} />
             {isLoggingOut ? "Déconnexion..." : "Se déconnecter"}
           </button>
-
           <div className="mt-6 px-4 text-[11px] text-gray-500 text-center uppercase tracking-widest">
             © {new Date().getFullYear()} • Ivoire Business
           </div>
@@ -200,14 +233,13 @@ export default function AdminLayout({ children }) {
 
       {/* Main Section */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header Amélioré */}
         <header className="h-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-8 sticky top-0 z-10">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white capitalize">
               {currentPageTitle}
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-              Bienvenue dans votre espace de gestion
+              Espace de gestion sécurisé
             </p>
           </div>
 
@@ -216,9 +248,7 @@ export default function AdminLayout({ children }) {
               <RiNotification3Line size={24} />
               <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
             </button>
-
             <div className="h-10 w-[1px] bg-gray-200"></div>
-
             <div className="flex items-center gap-3 pl-2">
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight">
@@ -235,7 +265,6 @@ export default function AdminLayout({ children }) {
           </div>
         </header>
 
-        {/* Contenu avec animation de fondu */}
         <main className="flex-1 overflow-y-auto bg-[#F8FAFC] dark:bg-gray-950 p-8">
           <div className="max-w-7xl mx-auto animate-in fade-in duration-500">
             {children}

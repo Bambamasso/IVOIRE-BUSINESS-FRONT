@@ -5,8 +5,9 @@ import { IoTrash } from "react-icons/io5";
 import { RiEyeLine } from "react-icons/ri";
 import DeleteProduct from "./delete_product";
 
-export default function ProductList({ route }) {
+export default function ProductList({ route, refreshFlag }) {
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
   const [pagination, setPagination] = useState({});
   const [selectedProductId, setSelectedProductId] = useState(null);
@@ -14,6 +15,7 @@ export default function ProductList({ route }) {
   const fetchProducts = async (page = 1) => {
     const token = JSON.parse(localStorage.getItem("admin_token"));
     try {
+      setLoading(true);
       const response = await axios.get(`${baseUrl}${route}?page=${page}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -22,14 +24,15 @@ export default function ProductList({ route }) {
       const data = response.data.data.data || [];
       setProducts(data);
       setPagination(response.data.data);
-      console.log(data);
     } catch (error) {
       console.error("Erreur lors de la récupération des produits:", error);
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
     fetchProducts();
-  }, [route]);
+  }, [route, refreshFlag]);
 
   return (
     <>
@@ -50,7 +53,16 @@ export default function ProductList({ route }) {
               </thead>
 
               <tbody className="divide-y divide-gray-200">
-                {products.length > 0 ? (
+                {loading ? (
+                  <tr>
+                    <td
+                      colSpan="5"
+                      className="px-8 py-20 text-center text-gray-400 font-bold italic"
+                    >
+                      Chargement ...
+                    </td>
+                  </tr>
+                ) : products.length > 0 ? (
                   products.map((product) => (
                     <tr
                       key={product.id}
@@ -135,6 +147,7 @@ export default function ProductList({ route }) {
             isOpen={openDeleteModal}
             onClose={() => setOpenDeleteModal(false)}
             product_id={selectedProductId}
+            refresh={fetchProducts}
           />
           {/* Pagination avec ton style spécifique (w-9 h-9, font-black, text-[10px]) */}
           {pagination && pagination.last_page > 1 && (

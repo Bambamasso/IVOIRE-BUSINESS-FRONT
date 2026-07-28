@@ -16,14 +16,14 @@ export default function AboutSummary() {
         <div className="flex flex-col lg:flex-row items-center gap-16">
           
           {/* Image illustrative (Engins ou Équipe) */}
-          <div className="lg:w-1/2 relative">
-            <div className="absolute -top-4 -left-4 w-24 h-24 bg-[#e8d393] rounded-full z-0 opacity-20"></div>
-            <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl">
-              <img src="/images/chantier-int-ib.jpg" alt="Équipe Intellect I-B" className="w-full h-[400px] object-cover" />
+          <div className="w-full lg:w-1/2 relative flex justify-center items-center mb-8 lg:mb-0">
+            <div className="absolute -top-4 -left-4 w-16 h-16 md:w-24 md:h-24 bg-[#e8d393] rounded-full z-0 opacity-20"></div>
+            <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl w-full max-w-xs sm:max-w-md md:max-w-full">
+              <img src="/images/équipe.jpeg" className="w-full h-48 sm:h-64 md:h-80 lg:h-[400px] object-cover" />
             </div>
-            <div className="absolute -bottom-6 -right-6 bg-[#93b86a] p-6 rounded-xl text-white shadow-xl hidden md:block">
-              <p className="text-2xl font-black">2021</p>
-              <p className="text-xs uppercase tracking-tighter">Expertise Terrain</p>
+            <div className="absolute -bottom-4 right-2 md:-bottom-6 md:-right-6 bg-[#93b86a] p-3 md:p-6 rounded-xl text-white shadow-xl hidden sm:block">
+              <p className="text-lg md:text-2xl font-black">2021</p>
+              <p className="text-[10px] md:text-xs uppercase tracking-tighter">Expertise Terrain</p>
             </div>
           </div>
 
@@ -49,7 +49,7 @@ export default function AboutSummary() {
               </div>
             </div>
 
-            <Link href="/a-propos" className="text-[#93b86a] font-bold border-b-2 border-[#93b86a] pb-1 hover:text-[#e8d393] hover:border-[#e8d393] transition-all">
+            <Link href="home/about" className="text-[#93b86a] font-bold border-b-2 border-[#93b86a] pb-1 hover:text-[#e8d393] hover:border-[#e8d393] transition-all">
               Lire notre histoire complète →
             </Link>
           </div>

@@ -5,7 +5,7 @@ import { useProduct } from "../../app/context/ProductFormContext";
 import axios from "axios";
 
 export default function VariantManager() {
-  const { formData, setFormData } = useProduct();
+  const { formData = {}, setFormData } = useProduct();
 
   const [attributeTypes, setAttributeTypes] = useState([]);
   const [attributeValues, setAttributeValues] = useState([]);
@@ -83,7 +83,7 @@ export default function VariantManager() {
     setFormData(prev => ({
       ...prev,
       variants: [
-        ...prev.variants,
+        ...(prev?.variants || []),
         { ...newVar, id: Date.now(), stock_quantity: parseInt(newVar.stock_quantity) }
       ]
     }));
@@ -95,7 +95,7 @@ export default function VariantManager() {
   const removeVariant = (id) => {
     setFormData(prev => ({
       ...prev,
-      variants: prev.variants.filter(v => v.id !== id)
+      variants: (prev?.variants || []).filter(v => v.id !== id)
     }));
   };
 
@@ -111,7 +111,7 @@ export default function VariantManager() {
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-bold text-gray-600 uppercase tracking-wider">Type d'attribut</label>
           <select
-            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all"
+            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all font-normal"
             value={newVar.attribute_id}
             onChange={handleTypeChange}
             disabled={loadingTypes}
@@ -126,7 +126,7 @@ export default function VariantManager() {
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-bold text-gray-600 uppercase tracking-wider">Valeur</label>
           <select
-            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed font-normal"
             value={newVar.value_id}
             onChange={handleValueChange}
             disabled={!newVar.attribute_id || loadingValues}
@@ -143,7 +143,7 @@ export default function VariantManager() {
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-bold text-gray-600 uppercase tracking-wider">Stock</label>
           <input
-            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all"
+            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all font-normal"
             type="number"
             placeholder="0"
             min="0"
@@ -161,7 +161,7 @@ export default function VariantManager() {
             Prix spécifique <span className="normal-case font-normal text-gray-400">(optionnel)</span>
           </label>
           <input
-            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 font-normal"
             type="number"
             placeholder="Hérite du prix principal"
             value={newVar.price}
@@ -181,15 +181,15 @@ export default function VariantManager() {
 
     {/* Liste des variantes */}
     <div className="flex flex-col gap-3">
-      <h3 className="text-sm font-bold text-gray-500 px-1">Variantes enregistrées ({formData.variants.length})</h3>
+      <h3 className="text-sm font-bold text-gray-500 px-1">Variantes enregistrées ({(formData?.variants || []).length})</h3>
       
-      {formData.variants.length === 0 ? (
+      {(formData?.variants || []).length === 0 ? (
         <div className="text-center py-10 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 text-gray-400 text-sm">
           Aucune variante ajoutée — gestion du stock sur le produit principal.
         </div>
       ) : (
         <div className="flex flex-col gap-2">
-          {formData.variants.map(v => (
+          {(formData?.variants || []).map(v => (
             <div key={v.id} className="flex items-center gap-2 p-3 bg-white border border-gray-300 rounded-lg">
               <span className="text-sm font-bold text-gray-700">{v.attribute?.name}: {v.value?.name}</span>
               <span className="text-xs text-gray-500">Stock: {v.stock_quantity}</span>

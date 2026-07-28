@@ -86,8 +86,6 @@ export default function Home() {
                 placeholder="********"
               />
             </div>
-
-            {/* ✅ Bouton avec état loading */}
             <div>
               <button
                 type="submit"

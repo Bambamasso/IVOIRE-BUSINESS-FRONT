@@ -1,65 +1,68 @@
-// components/ProductForm.jsx
 "use client";
 import { useState } from "react";
-import toast from "react-hot-toast";
+import EditInfoProduct from "./modal/edit_info_product";
+import EditVariantProduct from "./edit_variant_product";
 import { useProduct } from "../app/context/ProductFormContext";
-import GeneralInfo from "./modal/info_product";
-import VariantManager from "./modal/variante_product";
-import ImageGallery from "./modal/media_product";
 import axios from "axios";
+import toast from "react-hot-toast";
 
-export default function ProductForm({ isOpen, onClose , refresh}) {
+export default function EditProduct({ isOpen, onClose, product}) {
   const [activeTab, setActiveTab] = useState("info");
   const [loading, setLoading] = useState(false);
-  const { formData = {}, totalStock } = useProduct();
+  const { formData = {} } = useProduct();
 
   if (!isOpen) return null;
 
+  const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const token = JSON.parse(localStorage.getItem("admin_token"));
+
   const variantsCount = (formData?.variants || []).length;
-  const imagesCount = (formData?.images || []).length;
+
   const tabs = [
     { id: "info", label: "Informations" },
     { id: "variants", label: "Variantes", count: variantsCount },
-    { id: "images", label: "Photos", count: imagesCount },
   ];
-  const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
-  const token = JSON.parse(localStorage.getItem("admin_token"));
-  const handleSubmit = async () => {
-    try {
-      const data = new FormData();
-      data.append("title", formData.title);
-      data.append("description", formData.description || "");
-      data.append("price", formData.price);
-      data.append("category_id", formData.category_id);
 
-      // Correction ici : On envoie 0 ou la valeur, pas une string vide
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      const payload = {
+        title: formData.title,
+        description: formData.description || "",
+        price: formData.price,
+        category_id: formData.category_id,
+      };
 
       if ((formData?.variants || []).length === 0) {
-        data.append("stock_quantity", formData.stock_quantity);
+        payload.stock_quantity = formData.stock_quantity;
       }
 
-      // CORRECTION MAJEURE : Envoyer les variantes au format array pour PHP
-      (formData?.variants || []).forEach((v, index) => {
-        data.append(`variantes[${index}][attribute_values][]`, v.value_id);
-        data.append(`variantes[${index}][stock_quantity]`, v.stock_quantity);
-        data.append(`variantes[${index}][price]`, v.price || "");
-      });
+      if ((formData?.variants || []).length > 0) {
+        payload.variantes = (formData.variants || []).map((v) => ({
+          ...(v.serverId ? { id: v.serverId } : {}),
+          attribute_values: [v.value_id],
+          stock_quantity: v.stock_quantity,
+          price: v.price || null,
+          sku: v.sku || null,
+        }));
+      }
 
-      // Images
-      (formData?.images || []).forEach((f) => data.append("files[]", f));
-
-      const response = await axios.post(`${BaseUrl}/api/admin/products`, data, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
+      await axios.patch(
+        `${BaseUrl}/api/admin/products/${product.id}`,
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
-      toast.success("Produit enregistré avec succès !");
-      onClose();
-      if (refresh) refresh();
+      );
 
-    } catch (err) {
+      onClose();
+      toast.success("Produit modifié avec succès !");
+      product; // rafraîchir les données du produit après modification
       
+    } catch (err) {
       toast.error(
         err?.response?.data?.errors ||
           err.message ||
@@ -71,12 +74,12 @@ export default function ProductForm({ isOpen, onClose , refresh}) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/45 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="flex w-full max-w-[540px] flex-col overflow-hidden rounded-4xl border border-slate-200 bg-slate-50 shadow-[0_8px_32px_rgba(30,41,59,0.18)]">
         {/* Header */}
         <div className="flex items-center justify-between bg-slate-50 px-8 pt-6">
           <span className="text-lg font-semibold text-slate-900">
-            Nouveau produit
+            Modification du produit
           </span>
           <button
             onClick={onClose}
@@ -110,9 +113,8 @@ export default function ProductForm({ isOpen, onClose , refresh}) {
 
         {/* Body */}
         <div className="max-h-[60vh] overflow-y-auto bg-slate-50 px-8 py-6">
-          {activeTab === "info" && <GeneralInfo />}
-          {activeTab === "variants" && <VariantManager />}
-          {activeTab === "images" && <ImageGallery />}
+          {activeTab === "info" && <EditInfoProduct product={product} />}
+          {activeTab === "variants" && <EditVariantProduct product={product} />}
         </div>
 
         {/* Footer */}
@@ -132,7 +134,7 @@ export default function ProductForm({ isOpen, onClose , refresh}) {
                 : "bg-lime-600 hover:bg-lime-700"
             }`}
           >
-            {loading ? "Enregistrement..." : "Enregistrer le produit"}
+            {loading ? "Modification..." : "Modifier le produit"}
           </button>
         </div>
       </div>

@@ -71,7 +71,11 @@ export default function ServiceRequestDetailPage({ params }) {
   };
 
   if (loading)
-    return <div className="p-20 text-center font-black">Chargement...</div>;
+    return (
+      <AdminLayout>
+        <div className="p-20 text-center">Chargement...</div>
+      </AdminLayout>
+    );
   const isPending =
     request.status?.code === "pending" || request.status_id === "id_pending";
   const isCompleted = request.status?.code === "completed";
@@ -79,6 +83,7 @@ export default function ServiceRequestDetailPage({ params }) {
   return (
     <AdminLayout>
       {/* Bouton retour */}
+
       <button
         onClick={() => router.back()}
         className="flex items-center gap-2 mb-6 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 font-bold text-sm transition-all"
@@ -141,12 +146,12 @@ export default function ServiceRequestDetailPage({ params }) {
                 <div className="bg-gray-50 rounded-2xl p-6 space-y-4">
                   <div>
                     <p className="text-[10px] text-gray-400 font-black uppercase">
-                      Prix Proposé par le client
+                      Budget estimé par le client
                     </p>
                     <p className="text-xl font-black text-gray-900">
                       {request.propose_price
-                        ? `${request.propose_price} €`
-                        : "Non spécifié"}
+                        ? `${request.propose_price} `
+                        : "Aucun"}
                     </p>
                   </div>
                   <div className="pt-4 border-t border-gray-200">
@@ -207,7 +212,7 @@ export default function ServiceRequestDetailPage({ params }) {
                 <p
                   className={`font-black text-sm uppercase ${isCompleted ? "text-[#93b86a]" : "text-red-500"}`}
                 >
-                  {isCompleted ? "Demande déjà Validée" : "Demande Refusée"}
+                  {isCompleted ? "Demande Validée" : "Demande Refusée"}
                 </p>
                 {/* <p className="text-[10px] text-gray-400 mt-1 font-bold">
                   Le statut ne peut plus être modifié.

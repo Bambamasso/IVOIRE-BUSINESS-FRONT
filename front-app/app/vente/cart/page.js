@@ -135,7 +135,7 @@ export default function CartPage() {
                                 key={av.id}
                                 className="text-[10px] bg-gray-50 text-gray-500 font-bold uppercase border border-gray-100 px-2 py-1 rounded-md"
                               >
-                                {av.attribut?.name}: {av.value}
+                                {av.attribute?.name}: {av.value}
                               </span>
                             ))}
                           </div>
@@ -200,12 +200,7 @@ export default function CartPage() {
                       {getTotal().toLocaleString()} FCFA
                     </span>
                   </div>
-                  <div className="flex justify-between text-gray-500 text-sm">
-                    <span>Livraison</span>
-                    <span className="text-xs font-bold text-[#93b86a]">
-                      Calculé à l'étape suivante
-                    </span>
-                  </div>
+                 
                   <div className="pt-4 border-t border-gray-100 flex justify-between items-end">
                     <span className="font-bold text-gray-800">Total TTC</span>
                     <div className="text-right">
@@ -223,7 +218,7 @@ export default function CartPage() {
                   Procéder au paiement
                 </Link>
 
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center justify-center gap-2 mt-4">
                   <div className="w-2 h-2 bg-[#e8d393] rounded-full animate-pulse"></div>
                   <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight text-center">
                     Paiement sécurisé par Intellect I-B

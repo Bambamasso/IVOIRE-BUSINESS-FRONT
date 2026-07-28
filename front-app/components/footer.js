@@ -63,11 +63,11 @@ export default function Footer() {
             </li>
             <li className="flex items-start gap-3">
               <FaEnvelope className="text-[#93b86a] mt-1" />
-              <span className="break-all">info@intellect-ib.com</span>
+              <span className="break-all"> intellectstores@gmail.com</span>
             </li>
             <li className="flex items-start gap-3">
               <FaMapMarkerAlt className="text-[#93b86a] mt-1" />
-              <span>Abidjan, Cocody Angré <br />Carrefour Victor Lobad</span>
+              <span>Abidjan, Cocody Angré <br />Oscar</span>
             </li>
           </ul>
         </div>

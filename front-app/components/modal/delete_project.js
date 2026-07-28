@@ -1,16 +1,19 @@
-"use client";
-
-import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
-export default function DeleteProduct({ isOpen, onClose, product_id, refresh }) {
+export default function DeleteProject({
+  openDelete,
+  onClose,
+  project,
+  refresh,
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   // Ne pas afficher la modale si elle n'est pas ouverte
-  if (!isOpen) return null;
+  if (!openDelete) return null;
   const handleConfirm = async () => {
     setLoading(true);
 
@@ -25,7 +28,7 @@ export default function DeleteProduct({ isOpen, onClose, product_id, refresh }) 
       }
 
       const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-      const url = `${baseUrl}/api/admin/products/${product_id}`;
+      const url = `${baseUrl}/api/admin/projects/${project.id}`;
 
       const response = await axios.delete(url, {
         headers: {
@@ -35,11 +38,12 @@ export default function DeleteProduct({ isOpen, onClose, product_id, refresh }) 
       });
       if (response.data.status === "success") {
         onClose();
-        toast.success("Produit supprimé avec succès !");
-        refresh(); // rafraîchir la liste des produits après suppression
+        toast.success("Projet supprimé avec succès !");
+        refresh();
       }
       setLoading(false);
       onClose();
+      if (onConfirm) onConfirm();
     } catch (err) {
       setLoading(false);
       console.log(
@@ -49,6 +53,7 @@ export default function DeleteProduct({ isOpen, onClose, product_id, refresh }) 
       );
     }
   };
+
   return (
     <>
       <div
@@ -103,7 +108,7 @@ export default function DeleteProduct({ isOpen, onClose, product_id, refresh }) 
                 />
               </svg>
               <h3 className="mb-6 text-body">
-                Êtes-vous sûr de vouloir supprimer ce produit ?
+                Êtes-vous sûr de vouloir supprimer ce service ?
               </h3>
 
               <div className="flex items-center space-x-4 justify-center">

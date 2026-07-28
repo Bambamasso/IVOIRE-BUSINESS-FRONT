@@ -1,7 +1,5 @@
 "use client";
-import Image from "next/image";
-import Navbar from "@/components/navigation";
-import Link from "next/link";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
@@ -10,41 +8,44 @@ import axios from "axios";
 export default function Home() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const router = useRouter();
-
+  const [loading, setLoading] = useState(false);
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
   const handleSubmit = async (e) => {
     e.preventDefault();
-   
+    setLoading(true);
     //
     const userData = {
       email,
       password,
     };
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-    const url = baseUrl + "/api/login";
+
     try {
-      const response = await axios.post(url, userData, {
+      const response = await axios.post(`${baseUrl}/api/login`, userData, {
         headers: {
           "Content-Type": "application/json",
         },
       });
       if (response.data.status === "success") {
         const token = response.data.token;
-        const roleName=response.data.user_info.user_role[0];
-        if(roleName!=="admin"){
-        toast.error("Désolé, vous n'avez pas le rôle requis pour accéder à cette partie");
-        return;
+        const roleName = response.data.user_info.user_role[0];
+        if (roleName !== "admin") {
+          toast.error(
+            "Désolé, vous n'avez pas le rôle requis pour accéder à cette partie",
+          );
+          return;
         }
         localStorage.setItem("admin_token", JSON.stringify(token));
-         router.push("/admin/dashboard");
+        router.push("/admin/dashboard");
       } else {
         setError(response.data.message || "Erreur lors de la connexion.");
       }
     } catch (error) {
-       console.error("Erreur lors de la connexion:", error);
-       toast.error(error.response.data.message);
+      console.error("Erreur lors de la connexion:", error);
+      toast.error(error.response.data.message);
       setError("Une erreur réseau est survenue.");
+    } finally {
+      setLoading(false); //
     }
   };
 
@@ -100,27 +101,55 @@ export default function Home() {
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-md text-base font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150"
+                disabled={loading}
+                className="w-full flex bg-[#93b86a] justify-center items-center gap-2 py-2 px-4 border border-transparent rounded-lg shadow-md text-base font-semibold text-white  focus:outline-none  disabled:cursor-not-allowed"
               >
-                Se Connecter
+                {loading ? (
+                  <>
+                    {/* Spinner SVG simple */}
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8z"
+                      />
+                    </svg>
+                    Connexion en cours...
+                  </>
+                ) : (
+                  "Se Connecter"
+                )}
               </button>
             </div>
-             <Toaster
-            position="top-center"
-            reverseOrder={false}
-            gutter={8}
-            containerClassName=""
-            containerStyle={{}}
-            toastOptions={{
-              // Define default options
-              className: "",
-              duration: 5000,
-              style: {
-                background: "#363636",
-                color: "#fff",
-              },
-            }}
-          />
+            <Toaster
+              position="top-center"
+              reverseOrder={false}
+              gutter={8}
+              containerClassName=""
+              containerStyle={{}}
+              toastOptions={{
+                // Define default options
+                className: "",
+                duration: 5000,
+                style: {
+                  background: "#363636",
+                  color: "#fff",
+                },
+              }}
+            />
           </form>
         </div>
       </div>

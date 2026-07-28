@@ -4,6 +4,7 @@ import { CartProvider } from "./context/CartContext";
 import { ProductProvider } from "./context/ProductFormContext";
 import { Toaster } from "react-hot-toast";
 
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -25,9 +26,11 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        
         <CartProvider>
           <ProductProvider>
             {children}
+            
             <Toaster
               position="top-center"
               reverseOrder={false}

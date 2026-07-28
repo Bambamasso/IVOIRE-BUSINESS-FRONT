@@ -52,12 +52,8 @@ export default function ServiceRequestList({ route, statusColor }) {
     }
   };
 
-  if (loading)
-    return (
-      <div className="py-20 text-center font-black text-gray-400 animate-pulse text-[10px] uppercase tracking-widest">
-        Chargement des demande...
-      </div>
-    );
+  // On garde un chargement "dans le tableau" pour une UI cohérente
+  // (rendu conditionnel dans le <tbody>)
 
   return (
   <div className="space-y-6">
@@ -74,7 +70,17 @@ export default function ServiceRequestList({ route, statusColor }) {
               <th className="px-6 py-6 text-right">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">{/* Bordures de lignes nettement plus visibles */}{requests.length > 0 ? requests.map((req) => (
+          <tbody className="divide-y divide-gray-200">{/* Bordures de lignes nettement plus visibles */}
+            {loading ? (
+              <tr>
+                <td
+                  colSpan="6"
+                  className="px-8 py-20 text-center text-gray-400 font-bold italic"
+                >
+                  Chargement ...
+                </td>
+              </tr>
+            ) : requests.length > 0 ? requests.map((req) => (
             <tr
               key={req.id}
               className="group hover:bg-[#93b86a]/5 transition-colors"
