@@ -31,9 +31,9 @@ const adminMenu = [
 const settingsSubMenu = [
   { href: "/admin/categories", label: "Catégories" },
   { href: "/admin/services", label: "Services" },
-   { href: "/admin/projects", label: "Projets" },
+  { href: "/admin/projects", label: "Projets" },
   { href: "/admin/silder", label: "Bannières" },
- 
+  { href: "/admin/cities", label: "Villes & Communes" },
 ];
 
 export default function AdminLayout({ children }) {
@@ -62,8 +62,7 @@ export default function AdminLayout({ children }) {
 
   // État pour ouvrir/fermer le menu paramètres
   const [isSettingsOpen, setIsSettingsOpen] = useState(
-    pathname.includes("/admin/categories") ||
-    pathname.includes("/admin/services"),
+    settingsSubMenu.some((item) => pathname.startsWith(item.href)),
   );
 
   // Titre dynamique
@@ -126,7 +125,7 @@ export default function AdminLayout({ children }) {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-gray-950 flex font-sans text-gray-900">
+    <div className="h-screen bg-[#F8FAFC] dark:bg-gray-950 flex font-sans text-gray-900 overflow-hidden">
       {/* Sidebar */}
       <aside className="hidden md:flex md:w-72 flex-col bg-gray-900 text-gray-100 shadow-xl border-r border-gray-800">
         <div className="h-20 flex items-center px-8 border-b border-gray-800/50">
@@ -193,7 +192,7 @@ export default function AdminLayout({ children }) {
 
             <div
               className={`mt-2 ml-9 space-y-1 overflow-hidden transition-all duration-300 ${
-                isSettingsOpen ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+                isSettingsOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
               }`}
             >
               {settingsSubMenu.map((subItem) => {

@@ -14,19 +14,26 @@ export default function ServicesRequestsPage() {
       id: "pending",
       label: "En attente",
       route: "/api/admin/service-requests/pending",
-      color: "text-orange-500",
+    },
+    {
+      id: "validated",
+      label: "Validées",
+      route: "/api/admin/service-requests/validated",
+    },
+    {
+      id: "in-progress",
+      label: "En cours",
+      route: "/api/admin/service-requests/in-progress",
     },
     {
       id: "completed",
       label: "Terminées",
       route: "/api/admin/service-requests/completed",
-      color: "text-[#93b86a]",
     },
     {
       id: "rejected",
       label: "Refusées",
       route: "/api/admin/service-requests/rejected",
-      color: "text-red-500",
     },
   ];
 
@@ -36,20 +43,20 @@ export default function ServicesRequestsPage() {
     const fetchCounts = async () => {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL;
       const token = JSON.parse(localStorage.getItem("admin_token"));
-      const newCounts = {};
-      for (const tab of tabs) {
-        try {
-          const response = await axios.get(`${baseUrl}${tab.route}?page=1`, {
+      // Un seul appel qui renvoie les 3 compteurs.
+      try {
+        const response = await axios.get(
+          `${baseUrl}/api/admin/service-requests/count`,
+          {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          });
-          newCounts[tab.id] = response.data?.data?.total || 0;
-        } catch (err) {
-          newCounts[tab.id] = 0;
-        }
+          },
+        );
+        setCounts(response.data?.data || {});
+      } catch (err) {
+        setCounts({});
       }
-      setCounts(newCounts);
     };
     fetchCounts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -81,10 +88,7 @@ export default function ServicesRequestsPage() {
         </div>
 
         {/* Appel du composant avec la route dynamique */}
-        <ServiceRequestList
-          route={currentTab.route}
-          statusColor={currentTab.color}
-        />
+        <ServiceRequestList route={currentTab.route} />
       </div>
     </AdminLayout>
   );

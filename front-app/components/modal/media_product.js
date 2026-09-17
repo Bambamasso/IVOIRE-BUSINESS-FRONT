@@ -5,9 +5,23 @@ import { useProduct } from "../../app/context/ProductFormContext";
 export default function ImageGallery() {
   const { formData = {}, setFormData } = useProduct();
 
+  const ACCEPTED = ["image/jpeg", "image/png"];
+  const MAX_SIZE = 2 * 1024 * 1024; // 2 Mo — doit rester aligné avec la règle backend (max:2048)
+
   const handleFiles = (files) => {
     const existingNames = (formData?.images || []).map((i) => i.name);
-    const newFiles = Array.from(files).filter((f) => !existingNames.includes(f.name));
+    const newFiles = Array.from(files).filter((f) => {
+      if (existingNames.includes(f.name)) return false;
+      if (!ACCEPTED.includes(f.type)) {
+        alert(`"${f.name}" ignoré : format non supporté (JPG ou PNG uniquement).`);
+        return false;
+      }
+      if (f.size > MAX_SIZE) {
+        alert(`"${f.name}" ignoré : dépasse 2 Mo.`);
+        return false;
+      }
+      return true;
+    });
     setFormData((prev) => ({ ...prev, images: [...(prev?.images || []), ...newFiles] }));
   };
 
@@ -37,14 +51,14 @@ export default function ImageGallery() {
           Cliquez pour ajouter des photos
         </div>
         <div className="text-xs text-gray-400 mt-2">
-          PNG, JPG, WEBP — max 5 Mo par fichier
+          JPG ou PNG — max 2 Mo par fichier
         </div>
 
         <input
           id="file-input"
           type="file"
           multiple
-          accept="image/*"
+          accept="image/jpeg,image/png"
           className="hidden"
           onChange={(e) => handleFiles(e.target.files)}
         />

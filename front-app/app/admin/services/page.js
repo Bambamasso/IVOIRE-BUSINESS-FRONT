@@ -3,6 +3,7 @@ import { IoAdd, IoPencil, IoTrash } from "react-icons/io5";
 import AdminLayout from "../layaut";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 import DeleteService from "@/components/modal/delete_service";
 import EditeService from "@/components/modal/edite_service";
 import CreateService from "@/components/modal/add_service";
@@ -24,18 +25,22 @@ export default function ServicesPage() {
       setLoading(true);
       const token = JSON.parse(localStorage.getItem("admin_token"));
       const response = await axios.get(
-        `${baseUrl}/api/admin/services?page=${page}`,
+        `${baseUrl}/api/admin/services?page=${page}&per_page=10`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         },
       );
-      
+
       setServices(response.data?.data?.data || []);
       setPagination(response.data?.data || {});
     } catch (error) {
       console.error(error);
+      toast.error(
+        error.response?.data?.message ||
+          "Erreur lors du chargement des services.",
+      );
     } finally {
       setLoading(false);
     }
@@ -67,7 +72,7 @@ export default function ServicesPage() {
       </div>
 
       {/* TABLEAU AVEC LE DESIGN SERVICE REQUEST */}
-      <div className="bg-white rounded-[32px] border border-gray-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>

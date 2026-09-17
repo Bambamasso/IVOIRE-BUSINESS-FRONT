@@ -14,50 +14,44 @@ export default function OrdersPage() {
       id: "pending",
       label: "En attente",
       route: "/api/admin/orders/orders-pending",
-      color: "text-orange-500",
     },
     {
       id: "validated",
       label: "Validées",
       route: "/api/admin/orders/orders-validated",
-      color: "text-[#93b86a]",
     },
     {
       id: "delivered",
-      label: "Livréees",
+      label: "Livrées",
       route: "/api/admin/orders/orders-delivered",
-      color: "text-red-500",
     },
     {
       id: "canceled",
       label: "Annulées",
       route: "/api/admin/orders/orders-canceled",
-      color: "text-red-500",
     },
   ];
 
   const currentTab = tabs.find((t) => t.id === activeTab);
 
-  // Récupérer le nombre de commandes pour chaque statut
+  // Récupérer le nombre de commandes pour chaque statut en un seul appel
   useEffect(() => {
     const fetchCounts = async () => {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL;
       const token = JSON.parse(localStorage.getItem("admin_token"));
-      const newCounts = {};
-      for (const tab of tabs) {
-        try {
-          const response = await axios.get(`${baseUrl}${tab.route}?page=1`, {
+      try {
+        const response = await axios.get(
+          `${baseUrl}/api/admin/orders/count`,
+          {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          });
-          // On suppose que la pagination existe et que le total est dans response.data.data.total
-          newCounts[tab.id] = response.data?.data?.total || 0;
-        } catch (err) {
-          newCounts[tab.id] = 0;
-        }
+          },
+        );
+        setCounts(response.data?.data || {});
+      } catch (err) {
+        setCounts({});
       }
-      setCounts(newCounts);
     };
     fetchCounts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,7 +81,7 @@ export default function OrdersPage() {
           </div>
 
           {/* Appel du composant avec la route dynamique */}
-          <OrdersList route={currentTab.route} statusColor={currentTab.color} />
+          <OrdersList route={currentTab.route} />
         </div>
       </AdminLayout>
     </>

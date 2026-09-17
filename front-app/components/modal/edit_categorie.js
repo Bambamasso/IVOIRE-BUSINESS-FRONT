@@ -19,7 +19,7 @@ export default function EditCategorie({
     name: "",
     image: null, // null pour fichier File
     imagePreview: "", // ✅ pour l'aperçu local
-    parent_category_id: "",
+    parent_id: "",
   });
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -28,7 +28,7 @@ export default function EditCategorie({
       fetchCategories();
       setFormData({
         name: categorie?.name || "",
-        parent_category_id: categorie?.parent_id || "",
+        parent_id: categorie?.parent_id || "",
         image: null,
         imagePreview: categorie?.image // charge l'image existante
           ? `${baseUrl}/storage/${categorie.image}`
@@ -40,7 +40,7 @@ export default function EditCategorie({
   const fetchCategories = async () => {
     const token = JSON.parse(localStorage.getItem("admin_token"));
     try {
-      const response = await axios.get(`${baseUrl}/api/admin/categories/all/gategories`, {
+      const response = await axios.get(`${baseUrl}/api/admin/categories/all/categories`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
@@ -49,6 +49,7 @@ export default function EditCategorie({
       setCategories(response.data.data || response.data);
     } catch (err) {
       console.error("Erreur chargement catégories:", err);
+      toast.error("Erreur lors du chargement des catégories");
     }
   };
 
@@ -73,7 +74,7 @@ export default function EditCategorie({
     //
     const data = new FormData();
     data.append("name", formData.name);
-    data.append("parent_category_id", formData.parent_category_id || "");
+    data.append("parent_id", formData.parent_id || "");
     if (formData.image) data.append("image", formData.image);
     data.append("_method", "PUT"); //  Laravel method spoofing
 
@@ -109,26 +110,26 @@ export default function EditCategorie({
       tabIndex={-1}
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center w-full h-full bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center w-full h-full bg-black/60 backdrop-blur-sm p-4"
     >
       <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="relative bg-white rounded-lg shadow-lg p-6 dark:bg-gray-800">
+        <div className="relative bg-white rounded-3xl shadow-2xl border border-gray-100 p-8">
           <button
             type="button"
-            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition"
+            className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition"
             onClick={onClose}
           >
             <IoClose size={28} />
             <span className="sr-only">Fermer la modale</span>
           </button>
 
-          <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
+          <h2 className="text-xl font-black text-gray-900 mb-6">
             Modifier la catégorie
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">
                 Nom de la catégorie
               </label>
               <input
@@ -138,13 +139,13 @@ export default function EditCategorie({
                   setFormData({ ...formData, name: e.target.value })
                 }
                 required
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#93b86a]/20 transition-all"
                 placeholder="Ex: Électronique, Vêtements..."
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">
                 Image de la catégorie
               </label>
               <div className="flex gap-4">
@@ -153,39 +154,39 @@ export default function EditCategorie({
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange} //
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#93b86a]/20 transition-all"
                   />
                 </div>
-               
+
                 {formData.imagePreview && (
                   <div className="w-24 h-24 flex-shrink-0">
                     <img
                       src={formData.imagePreview}
                       alt="Aperçu"
-                      className="w-full h-full object-cover rounded-lg border border-gray-300 dark:border-gray-600"
+                      className="w-full h-full object-cover rounded-2xl border border-gray-200"
                     />
                   </div>
                 )}
               </div>
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p className="mt-2 text-xs text-gray-400 font-medium ml-2">
                 Formats acceptés: JPG, PNG, GIF (Max 5MB)
               </p>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">
                 Catégorie parent
               </label>
-             
+
               <select
-                value={formData.parent_category_id}
+                value={formData.parent_id}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    parent_category_id: e.target.value,
+                    parent_id: e.target.value,
                   })
                 }
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#93b86a]/20 transition-all"
               >
                 <option value="">-- Aucune (Catégorie principale) --</option>
                 {categories.map((cat) => (
@@ -196,29 +197,31 @@ export default function EditCategorie({
               </select>
             </div>
 
-            <div className="flex items-center justify-end gap-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <button
-                type="button"
-                className="px-6 py-2 bg-gray-300 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg hover:bg-gray-400 transition font-medium"
-                onClick={onClose}
-                disabled={loading}
-              >
-                Annuler
-              </button>
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <button
                 type="submit"
-                className="px-6 py-2 bg-[#93b86a] text-white rounded-lg hover:bg-[#83c13c] transition font-medium"
+                className="flex-1 py-4 bg-[#93b86a] text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] shadow-lg shadow-[#93b86a]/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                 disabled={loading}
               >
                 {loading ? (
                   <>
-                    <span className="animate-spin"></span>
+                    <span className="animate-spin">⏳</span>
                     Modification en cours...
-                     <IoSave size={18} />
                   </>
                 ) : (
-                  "Modifier" // 
+                  <>
+                    <IoSave size={16} />
+                    Modifier
+                  </>
                 )}
+              </button>
+              <button
+                type="button"
+                className="flex-1 py-4 bg-gray-100 text-gray-500 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-200 transition-all disabled:opacity-50"
+                onClick={onClose}
+                disabled={loading}
+              >
+                Annuler
               </button>
             </div>
           </form>

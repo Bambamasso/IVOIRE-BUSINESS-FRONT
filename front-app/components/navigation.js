@@ -223,28 +223,21 @@ export default function Navbar() {
       >
         <div className="px-4 pt-4 space-y-4">
           <Link
-            href="/a-propos"
+            href="/home/about"
             onClick={toggleMenu}
             className="block text-lg font-medium text-gray-800"
           >
             À Propos
           </Link>
           <Link
-            href="/services"
-            onClick={toggleMenu}
-            className="block text-lg font-medium text-gray-800"
-          >
-            Services
-          </Link>
-          <Link
-            href="/contact"
+            href="/home/contact"
             onClick={toggleMenu}
             className="block text-lg font-medium text-gray-800"
           >
             Contact
           </Link>
           <Link
-            href="/cart"
+            href="/vente/cart"
             onClick={toggleMenu}
             className="flex items-center justify-between bg-gray-50 p-3 rounded-lg"
           >

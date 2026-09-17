@@ -48,8 +48,14 @@ export default function VariantManager() {
   // Chargement des valeurs quand le type change
   const handleTypeChange = async (e) => {
     const id = e.target.value;
-    const name = e.target.options[e.target.selectedIndex].text;
-    setNewVar(prev => ({ ...prev, attribute_id: id, attribute_name: name, value_id: "", value_name: "" }));
+    const attr = attributeTypes.find((a) => String(a.id) === String(id));
+    setNewVar(prev => ({
+      ...prev,
+      attribute_id: id,
+      attribute_name: attr?.name ?? "",
+      value_id: "",
+      value_name: "",
+    }));
     setAttributeValues([]);
 
     if (!id) return;
@@ -73,19 +79,29 @@ export default function VariantManager() {
 
   const handleValueChange = (e) => {
     const value_id = e.target.value;
-    const value_name = e.target.options[e.target.selectedIndex].text;
-    setNewVar(prev => ({ ...prev, value_id, value_name }));
+    const val = attributeValues.find((v) => String(v.id) === String(value_id));
+    setNewVar(prev => ({ ...prev, value_id, value_name: val?.value ?? "" }));
   };
 
   const addVariant = () => {
     if (!newVar.attribute_id || !newVar.value_id || newVar.stock_quantity === "") return;
 
+    // Sécurité : on redérive les libellés depuis les listes chargées
+    const attr = attributeTypes.find((a) => String(a.id) === String(newVar.attribute_id));
+    const val = attributeValues.find((v) => String(v.id) === String(newVar.value_id));
+
     setFormData(prev => ({
       ...prev,
       variants: [
         ...(prev?.variants || []),
-        { ...newVar, id: Date.now(), stock_quantity: parseInt(newVar.stock_quantity) }
-      ]
+        {
+          ...newVar,
+          attribute_name: attr?.name ?? newVar.attribute_name ?? "",
+          value_name: val?.value ?? newVar.value_name ?? "",
+          id: Date.now(),
+          stock_quantity: parseInt(newVar.stock_quantity),
+        },
+      ],
     }));
 
     setNewVar({ attribute_id: "", attribute_name: "", value_id: "", value_name: "", stock_quantity: "", sku: "", price: "" });
@@ -190,9 +206,20 @@ export default function VariantManager() {
       ) : (
         <div className="flex flex-col gap-2">
           {(formData?.variants || []).map(v => (
-            <div key={v.id} className="flex items-center gap-2 p-3 bg-white border border-gray-300 rounded-lg">
-              <span className="text-sm font-bold text-gray-700">{v.attribute?.name}: {v.value?.name}</span>
-              <span className="text-xs text-gray-500">Stock: {v.stock_quantity}</span>
+            <div key={v.id} className="flex items-center justify-between gap-2 p-3 bg-white border border-gray-300 rounded-lg">
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-bold text-gray-700">{v.attribute_name}: {v.value_name}</span>
+                <span className="text-xs text-gray-500">Stock: {v.stock_quantity}</span>
+                {v.price ? <span className="text-xs text-gray-500">Prix: {v.price}</span> : null}
+              </div>
+              <button
+                type="button"
+                onClick={() => removeVariant(v.id)}
+                className="text-gray-400 hover:text-red-500 text-sm font-bold px-2"
+                title="Retirer"
+              >
+                ✕
+              </button>
             </div>
           ))}
         </div>

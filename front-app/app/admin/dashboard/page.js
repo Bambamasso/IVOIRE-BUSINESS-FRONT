@@ -1,5 +1,4 @@
 "use client";
-"use client";
 import { useEffect, useState } from "react";
 import AdminLayout from "../layaut";
 import axios from "axios";
@@ -10,31 +9,31 @@ export default function Dasboard() {
   const [products, setProducts] = useState(0);
   const [servicesRequest, setServicesRequest] = useState(0);
   const [loading, setLoading] = useState(true);
-  const stats = async () => {
-    const token = JSON.parse(localStorage.getItem("admin_token"));
-    const response = await axios.get(`${baseUrl}/api/admin/dashboard`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-    });
-    const orders = response.data.data.stats.orders.total;
-    const products = response.data.data.stats.products.total;
-    const servicesRequest = response.data.data.stats.services.total;
-    setOrders(orders);
-    setProducts(products);
-    setServicesRequest(servicesRequest);
-    //  setDashboardData(response.data);
-    //  console.log(response.data.data.stats.orders.total);
-    //  console.log(orders);
-
-    try {
-    } catch (error) {}
-  };
 
   useEffect(() => {
+    const stats = async () => {
+      try {
+        const token = JSON.parse(localStorage.getItem("admin_token"));
+        const response = await axios.get(`${baseUrl}/api/admin/dashboard`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        });
+        const s = response.data.data.stats;
+        setOrders(s.orders.total);
+        setProducts(s.products.total);
+        setServicesRequest(s.services.total);
+      } catch (error) {
+        console.error("Erreur lors du chargement du tableau de bord :", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     stats();
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <>
       <AdminLayout>

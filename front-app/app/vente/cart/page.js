@@ -24,10 +24,12 @@ export default function CartPage() {
 
   // Recharger le panier si l'état d'authentification change
   useEffect(() => {
-    
+    if (isAuthenticated) {
+      loadCartFromAPI();
+    } else {
       loadCartFromLocalStorage();
-    
-  }, [loadCartFromAPI, loadCartFromLocalStorage]);
+    }
+  }, [isAuthenticated, loadCartFromAPI, loadCartFromLocalStorage]);
 
 
   const isEmpty = getTotalItems() === 0;

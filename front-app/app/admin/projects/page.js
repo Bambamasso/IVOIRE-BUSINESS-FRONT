@@ -62,7 +62,7 @@ export default function ProjectsPage() {
           </button>
         </div>
 
-        <div className="bg-white rounded-[32px] border border-gray-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -70,7 +70,7 @@ export default function ProjectsPage() {
                   <th className="px-8 py-6">Localisation</th>
                   <th className="px-6 py-6 text-center">Tâche réalisé</th>
                   <th className="px-8 py-6">Année de réalisation</th>
-                  <th className="px-8 py-6 text-right">Client</th>
+                  <th className="px-8 py-6">Client</th>
                   <th className="px-8 py-6 text-right">Action</th>
                 </tr>
               </thead>
@@ -78,7 +78,7 @@ export default function ProjectsPage() {
                 {loading ? (
                   <tr>
                     <td
-                      colSpan="4"
+                      colSpan="5"
                       className="px-8 py-20 text-center text-gray-400 font-bold italic"
                     >
                       Chargement ...
@@ -90,26 +90,28 @@ export default function ProjectsPage() {
                       key={project.id}
                       className="group hover:bg-[#93b86a]/5 transition-colors"
                     >
-                      {/* NOM */}
+                      {/* LOCALISATION */}
                       <td className="px-8 py-5">
                         <p className="text-sm font-black text-gray-900 leading-tight">
                           {project.location}
                         </p>
                       </td>
 
-                      {/* PRIX */}
+                      {/* TÂCHE RÉALISÉE */}
                       <td className="px-6 py-5 text-center">
                         <span className="inline-flex items-center px-3 py-1 rounded-lg bg-[#93b86a]/10 text-[#93b86a] text-sm font-black">
                           {project.task}
                         </span>
                       </td>
 
-                      {/* DESCRIPTION */}
+                      {/* ANNÉE */}
                       <td className="px-8 py-5">
                         <p className="text-xs text-gray-500 font-medium line-clamp-1 max-w-xs italic">
                           {project.year || "Pas d'année défini pour ce projet."}
                         </p>
                       </td>
+
+                      {/* CLIENT */}
                       <td className="px-8 py-5">
                         <p className="text-xs text-gray-500 font-medium line-clamp-1 max-w-xs italic">
                           {project.client ||
@@ -148,7 +150,7 @@ export default function ProjectsPage() {
                 ) : (
                   <tr>
                     <td
-                      colSpan="4"
+                      colSpan="5"
                       className="px-8 py-20 text-center text-gray-400 font-bold italic"
                     >
                       Aucun projet trouvé.

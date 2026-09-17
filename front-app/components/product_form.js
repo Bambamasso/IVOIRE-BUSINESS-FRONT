@@ -23,32 +23,51 @@ export default function ProductForm({ isOpen, onClose , refresh}) {
     { id: "images", label: "Photos", count: imagesCount },
   ];
   const BaseUrl = process.env.NEXT_PUBLIC_API_URL;
-  const token = JSON.parse(localStorage.getItem("admin_token"));
   const handleSubmit = async () => {
+    if (loading) return; // évite les doubles soumissions
+
+    const variants = formData?.variants || [];
+    const images = formData?.images || [];
+
+    // Garde-fous côté client pour un message clair immédiat
+    if (!formData.title?.trim()) {
+      toast.error("Le nom du produit est obligatoire.");
+      return;
+    }
+    if (!formData.category_id) {
+      toast.error("La catégorie est obligatoire.");
+      return;
+    }
+    if (images.length === 0) {
+      toast.error("Veuillez ajouter au moins une image.");
+      return;
+    }
+
+    setLoading(true);
     try {
+      const token = JSON.parse(localStorage.getItem("admin_token"));
       const data = new FormData();
       data.append("title", formData.title);
       data.append("description", formData.description || "");
-      data.append("price", formData.price);
+      data.append("price", formData.price || "");
       data.append("category_id", formData.category_id);
 
-      // Correction ici : On envoie 0 ou la valeur, pas une string vide
-
-      if ((formData?.variants || []).length === 0) {
-        data.append("stock_quantity", formData.stock_quantity);
+      // Stock principal uniquement s'il n'y a pas de variantes
+      if (variants.length === 0) {
+        data.append("stock_quantity", formData.stock_quantity || "0");
       }
 
-      // CORRECTION MAJEURE : Envoyer les variantes au format array pour PHP
-      (formData?.variants || []).forEach((v, index) => {
+      // Variantes au format tableau attendu par PHP
+      variants.forEach((v, index) => {
         data.append(`variantes[${index}][attribute_values][]`, v.value_id);
-        data.append(`variantes[${index}][stock_quantity]`, v.stock_quantity);
+        data.append(`variantes[${index}][stock_quantity]`, v.stock_quantity ?? 0);
         data.append(`variantes[${index}][price]`, v.price || "");
       });
 
       // Images
-      (formData?.images || []).forEach((f) => data.append("files[]", f));
+      images.forEach((f) => data.append("files[]", f));
 
-      const response = await axios.post(`${BaseUrl}/api/admin/products`, data, {
+      await axios.post(`${BaseUrl}/api/admin/products`, data, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
@@ -57,11 +76,11 @@ export default function ProductForm({ isOpen, onClose , refresh}) {
       toast.success("Produit enregistré avec succès !");
       onClose();
       if (refresh) refresh();
-
     } catch (err) {
-      
+      const apiError = err?.response?.data?.errors;
       toast.error(
-        err?.response?.data?.errors ||
+        (typeof apiError === "string" ? apiError : null) ||
+          err?.response?.data?.message ||
           err.message ||
           "Une erreur est survenue.",
       );

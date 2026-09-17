@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import axios from "axios";
-import { useRouter } from "next/navigation";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 export default function DeleteCategorie({
   isOpen,
@@ -11,11 +10,11 @@ export default function DeleteCategorie({
   refresh,
   categorie_id,
 }) {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   // Ne pas afficher la modale si elle n'est pas ouverte
   if (!isOpen) return null;
+
   const handleConfirm = async () => {
     setLoading(true);
 
@@ -38,119 +37,106 @@ export default function DeleteCategorie({
           Accept: "application/json",
         },
       });
+
       if (response.data.status === "success") {
-        onClose();
+        toast.success("Catégorie supprimée avec succès !");
         refresh();
-        toast.success("Catégorie supprimé avec succès !");
+        onClose();
       }
-      setLoading(false);
-      onClose();
-      if (onConfirm) onConfirm();
     } catch (err) {
-      setLoading(false);
-      console.log(
-        err?.response?.data?.message ||
-          err.message ||
-          "Erreur lors de la suppression",
-      );
       toast.error(
         err?.response?.data?.message ||
           err.message ||
           "Erreur lors de la suppression",
       );
+    } finally {
+      setLoading(false);
     }
   };
+
   return (
-    <>
-      <div
-        id="popup-modal"
-        tabIndex={-1}
-        role="dialog"
-        aria-modal="true"
-        className="fixed inset-0 z-50 flex items-center justify-center w-full h-full bg-black/50"
-      >
-        <div className="relative p-4 w-full max-w-md max-h-full">
-          <div className="relative bg-white rounded-lg shadow p-4 md:p-6">
+    <div
+      id="popup-modal"
+      tabIndex={-1}
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center w-full h-full bg-black/60 backdrop-blur-sm p-4"
+    >
+      <div className="relative bg-white rounded-3xl shadow-2xl border border-gray-100 w-full max-w-md overflow-hidden">
+        {/* Ligne de rappel rouge (action destructive) */}
+        <div className="h-2 bg-red-500 w-full" />
+
+        <div className="p-8">
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="text-xl font-black text-gray-900">
+              Supprimer la catégorie
+            </h3>
             <button
               type="button"
-              className="absolute top-3 right-2.5 text-body bg-transparent hover:bg-neutral-tertiary hover:text-heading rounded-base text-sm w-9 h-9 inline-flex justify-center items-center"
               onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
             >
               <svg
-                className="w-5 h-5"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
+                className="w-6 h-6"
                 fill="none"
+                stroke="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path
-                  stroke="currentColor"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  d="M6 18 17.94 6M18 18 6.06 6"
+                  d="M6 18L18 6M6 6l12 12"
                 />
               </svg>
               <span className="sr-only">Fermer la modale</span>
             </button>
-            <div className="p-4 md:p-5 text-center">
-              <svg
-                className="mx-auto mb-4 text-fg-disabled w-12 h-12"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 13V8m0 8h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                />
-              </svg>
-              <h3 className="mb-6 text-body">
-                Êtes-vous sûr de vouloir supprimer cette categorie ?
-              </h3>
+          </div>
 
-              <div className="flex items-center space-x-4 justify-center">
-                <button
-                  type="button"
-                  className="text-red-500 bg-danger box-border border shadow-xs font-medium leading-5 text-sm px-4 py-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
-                  onClick={handleConfirm}
-                  disabled={loading}
-                >
-                  {loading ? "Suppression..." : "Oui, supprimer"}
-                </button>
-                <button
-                  type="button"
-                  className="text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading focus:ring-4 focus:ring-neutral-tertiary shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-                  onClick={onClose}
-                  disabled={loading}
-                >
-                  Non, annuler
-                </button>
-              </div>
-            </div>
+          <div className="text-center py-4">
+            <svg
+              className="mx-auto mb-4 text-red-400 w-12 h-12"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M12 13V8m0 8h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+              />
+            </svg>
+            <p className="text-sm font-bold text-gray-600">
+              Êtes-vous sûr de vouloir supprimer cette catégorie ? Cette
+              action est irréversible.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <button
+              type="button"
+              onClick={handleConfirm}
+              disabled={loading}
+              className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-600 shadow-lg shadow-red-500/20 transition-all disabled:opacity-50"
+            >
+              {loading ? "Suppression..." : "Oui, supprimer"}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={loading}
+              className="flex-1 py-4 bg-gray-100 text-gray-500 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-200 transition-all disabled:opacity-50"
+            >
+              Non, annuler
+            </button>
           </div>
         </div>
-        <Toaster
-          position="top-center"
-          reverseOrder={false}
-          gutter={8}
-          toastOptions={{
-            duration: 5000,
-            style: {
-              background: "#363636",
-              color: "#fff",
-            },
-          }}
-        />
       </div>
-    </>
+    </div>
   );
 }

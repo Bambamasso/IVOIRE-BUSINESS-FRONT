@@ -6,7 +6,6 @@ import toast, { Toaster } from "react-hot-toast";
 export default function DeleteServiceRequest({
   openDelete,
   onClose,
-  onSuccess,
   requestId,
   onRefresh,
 }) {
@@ -42,16 +41,14 @@ export default function DeleteServiceRequest({
         onRefresh(); // On rafraîchit la liste des demandes de service sur la page parente
         onClose();
       }
-      setLoading(false);
-      onClose();
-      if (onConfirm) onConfirm();
     } catch (err) {
-      setLoading(false);
-      console.log(
+      toast.error(
         err?.response?.data?.message ||
           err.message ||
           "Erreur lors de la suppression",
       );
+    } finally {
+      setLoading(false);
     }
   };
 

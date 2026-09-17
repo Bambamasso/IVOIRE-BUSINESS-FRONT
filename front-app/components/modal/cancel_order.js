@@ -10,12 +10,26 @@ export default function CancelOrder({
 }) {
   const [loading, setLoading] = useState(false);
   const [cancellation_reason, setCancellationReason] = useState("");
+  const [error, setError] = useState("");
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
   if (!openCancelModal) return null;
 
+  const closeAndReset = () => {
+    setError("");
+    setCancellationReason("");
+    onClose();
+  };
+
   const rejectedRequest = async (e) => {
     if (e) e.preventDefault();
+
+    if (!cancellation_reason.trim()) {
+      setError("Le motif d'annulation est obligatoire.");
+      toast.error("Le motif d'annulation est obligatoire.");
+      return;
+    }
+    setError("");
 
     // 1. On active le loading dès le début
     setLoading(true);
@@ -40,8 +54,7 @@ export default function CancelOrder({
       if (response.data.status === "success") {
         toast.success(response.data.message || "Demande rejetée");
         await onRefresh(); // On attend que le refresh soit lancé
-        onClose();
-        setCancellationReason(""); // Reset du champ
+        closeAndReset();
       }
     } catch (error) {
       console.error(error);
@@ -64,7 +77,7 @@ export default function CancelOrder({
               Refuser la demande
             </h3>
             <button
-              onClick={onClose}
+              onClick={closeAndReset}
               className="text-gray-400 hover:text-gray-600 transition-colors"
             >
               <svg
@@ -92,23 +105,29 @@ export default function CancelOrder({
                 required
                 rows="4"
                 value={cancellation_reason}
-                onChange={(e) => setCancellationReason(e.target.value)}
+                onChange={(e) => {
+                  setCancellationReason(e.target.value);
+                  if (error) setError("");
+                }}
                 placeholder="Expliquez brièvement la raison de l'annulation au client..."
-                className="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#93b86a]/20 focus:bg-white focus:border-[#93b86a]/20 transition-all resize-none"
+                className={`w-full px-6 py-4 bg-gray-50 border rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#93b86a]/20 focus:bg-white focus:border-[#93b86a]/20 transition-all resize-none ${error ? "border-red-300" : "border-transparent"}`}
               />
+              {error && (
+                <p className="text-xs font-bold text-red-500 ml-2">{error}</p>
+              )}
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
               <button
                 type="submit" // Utilise le type submit pour le formulaire
-                disabled={loading || !cancellation_reason}
+                disabled={loading}
                 className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-600 shadow-lg shadow-red-500/20 transition-all disabled:opacity-50"
               >
                 {loading ? "Traitement..." : "Confirmer l'annulation"}
               </button>
               <button
                 type="button"
-                onClick={onClose}
+                onClick={closeAndReset}
                 className="flex-1 py-4 bg-gray-100 text-gray-500 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-200 transition-all"
               >
                 Annuler

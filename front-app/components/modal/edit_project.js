@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 
 export default function EditProject({ onClose, refresh, openEdit, project }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState("");
   const [formData, setFormData] = useState({
     location: "",
     year: "",
@@ -21,6 +22,7 @@ export default function EditProject({ onClose, refresh, openEdit, project }) {
         task: project.task || "",
         client: project.client || "",
       });
+      setFormError("");
     }
   }, [openEdit, project]);
 
@@ -30,6 +32,7 @@ export default function EditProject({ onClose, refresh, openEdit, project }) {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (formError) setFormError("");
   };
 
   const handleSubmit = async (e) => {
@@ -41,6 +44,19 @@ export default function EditProject({ onClose, refresh, openEdit, project }) {
       toast.error("Projet introuvable");
       return;
     }
+
+    if (
+      !formData.location?.trim() ||
+      !formData.year?.trim() ||
+      !formData.task?.trim() ||
+      !formData.client?.trim()
+    ) {
+      const message = "Veuillez remplir tous les champs obligatoires.";
+      setFormError(message);
+      toast.error(message);
+      return;
+    }
+    setFormError("");
 
     setIsSubmitting(true);
     const loader = toast.loading("Enregistrement des modifications...");
@@ -79,17 +95,9 @@ export default function EditProject({ onClose, refresh, openEdit, project }) {
     }
   };
 
-  const isFormValid =
-    formData.location?.trim() &&
-    formData.year?.trim() &&
-    formData.task?.trim() &&
-    formData.client?.trim();
-
-  
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center w-full h-full bg-black/60 backdrop-blur-sm p-4">
-      <div className="relative bg-white rounded-4xl shadow-2xl border border-gray-100 w-full max-w-lg overflow-hidden">
+      <div className="relative bg-white rounded-3xl shadow-2xl border border-gray-100 w-full max-w-lg overflow-hidden">
         <div className="h-2 bg-[#e8d393] w-full" />
 
         <div className="p-8">
@@ -181,10 +189,16 @@ export default function EditProject({ onClose, refresh, openEdit, project }) {
               />
             </div>
 
+            {formError && (
+              <p className="text-xs font-bold text-red-500 ml-2">
+                {formError}
+              </p>
+            )}
+
             <div className="flex gap-3 pt-2">
               <button
                 type="submit"
-                disabled={isSubmitting || !isFormValid}
+                disabled={isSubmitting}
                 className="flex-1 py-4 bg-[#93b86a] text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] shadow-lg shadow-[#93b86a]/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? "Modification..." : "Modifier"}

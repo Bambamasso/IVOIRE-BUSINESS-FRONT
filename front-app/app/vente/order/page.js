@@ -52,8 +52,10 @@ export default function OrderPage() {
         setCities(data);
         // console.log(setCities);
       } catch (error) {
-        // toast.;
-        toast.error(error.response.data.message);
+        toast.error(
+          error?.response?.data?.message ||
+            "Impossible de charger la liste des villes.",
+        );
         console.error("Erreur lors du chargement des villes:", error);
       }
     };
@@ -92,33 +94,35 @@ export default function OrderPage() {
       return;
     }
     setLoading(true);
-    const orderData = {
-      first_name,
-      last_name,
-      email,
-      city_id,
-      municipality_id,
-      phone_number,
-      payment_method,
-      address,
-      recaptcha_token: recaptchaToken,
-    };
 
     const rawToken = localStorage.getItem("token");
     const token = rawToken ? JSON.parse(rawToken) : null;
 
-    if (!token) {
-      orderData.items = cart.map((item) => ({
-        product_id: item.productId,
-        product_variant_id: item.variant?.id || null,
-        quantity: item.quantity,
-        price: item.price,
-      }));
-    }
-    // payload.append("recaptcha_token", recaptchaToken);
-
     try {
+      // 1. Récupérer le jeton reCAPTCHA AVANT de construire la requête
       const recaptchaToken = await getRecaptchaToken("order");
+
+      // 2. Construire les données de la commande
+      const orderData = {
+        first_name,
+        last_name,
+        email,
+        city_id,
+        municipality_id,
+        phone_number,
+        payment_method,
+        address,
+        recaptcha_token: recaptchaToken,
+      };
+
+      if (!token) {
+        orderData.items = cart.map((item) => ({
+          product_id: item.productId,
+          product_variant_id: item.variant?.id || null,
+          quantity: item.quantity,
+          price: item.price,
+        }));
+      }
 
       const response = await axios.post(`${baseUrl}/api/orders`, orderData, {
         headers: {
@@ -141,8 +145,13 @@ export default function OrderPage() {
         router.push("/vente");
       }
     } catch (error) {
+      const apiErrors = error?.response?.data?.errors;
       const message =
-        error?.response?.data?.errors ||
+        (typeof apiErrors === "string" && apiErrors) ||
+        (apiErrors && typeof apiErrors === "object"
+          ? Object.values(apiErrors).flat()[0]
+          : null) ||
+        error?.response?.data?.message ||
         error?.message ||
         "Erreur lors de la création de la commande";
       toast.error(message);

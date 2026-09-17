@@ -1,6 +1,5 @@
 "use client";
 import axios from "axios";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
@@ -62,7 +61,7 @@ export default function CreateService({ onClose, openCreate, onRefresh }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center w-full h-full bg-black/60 backdrop-blur-sm p-4">
-      <div className="relative bg-white rounded-4xl shadow-2xl border border-gray-100 w-full max-w-md overflow-hidden">
+      <div className="relative bg-white rounded-3xl shadow-2xl border border-gray-100 w-full max-w-md overflow-hidden">
         <div className="h-2 bg-[#e8d393] w-full" />
 
         <div className="p-8">
@@ -98,7 +97,7 @@ export default function CreateService({ onClose, openCreate, onRefresh }) {
               <input
                 type="text"
                 name="name" // Doit correspondre à la clé dans formData
-                // required
+                required
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Ex: Nettoyage de bureaux"

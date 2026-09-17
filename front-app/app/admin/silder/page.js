@@ -5,16 +5,19 @@ import { IoAdd } from "react-icons/io5";
 import axios from "axios";
 import toast from "react-hot-toast";
 import CreateSlider from "@/components/modal/add_slider";
+import EditSlider from "@/components/modal/edit_slider";
 
 export default function Silder() {
   const [slides, setSlides] = useState([]);
   const [pagination, setPagination] = useState({});
   const [openCreate, setOpenCreate] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [selectedSlide, setSelectedSlide] = useState(null);
   const [loading, setLoading] = useState(true);
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
   const getSlides = async (page = 1) => {
-    
+
     try {
       setLoading(true);
       const token = JSON.parse(localStorage.getItem("admin_token"));
@@ -32,6 +35,7 @@ export default function Silder() {
       //  console.log("Slides récupérés:", data);
     } catch (error) {
       console.error("Erreur lors de la récupération des slides:", error);
+      toast.error("Erreur lors de la récupération des bannières.");
     } finally {
       setLoading(false);
     }
@@ -60,6 +64,7 @@ export default function Silder() {
     }
   }catch(error) {
     console.error("Erreur lors de l'activation du slide:", error);
+    toast.error("Erreur lors de l'activation de la bannière.");
   }finally{
     setLoading(false);
   }
@@ -80,10 +85,30 @@ export default function Silder() {
     }
   }catch(error) {
     console.error("Erreur lors de la désactivation du slide:", error);
+    toast.error("Erreur lors de la désactivation de la bannière.");
   }finally{
     setLoading(false);
   }
   }
+
+  const deleteSlide = async (id) => {
+    if (!confirm("Voulez-vous vraiment supprimer cette bannière ?")) return;
+    try {
+      const token = JSON.parse(localStorage.getItem("admin_token"));
+      const response = await axios.delete(`${baseUrl}/api/admin/slides/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.status === 200) {
+        getSlides();
+        toast.success(response.data?.message || "Bannière supprimée avec succès!");
+      }
+    } catch (error) {
+      console.error("Erreur lors de la suppression du slide:", error);
+      toast.error(error.response?.data?.message || "Erreur lors de la suppression de la bannière.");
+    }
+  };
   return (
     <AdminLayout>
       <div className="space-y-6 p-4 md:p-6 max-w-7xl mx-auto">
@@ -108,8 +133,14 @@ export default function Silder() {
             Chargement des bannières...
           </div>
         ) : (
-          /* Grille Ultra-Responsive 
+          /* Grille Ultra-Responsive
              1 colonne sur mobile, 2 sur tablette, 3 sur petit écran PC, 4 sur grand écran PC */
+          slides.length === 0 ? (
+          <div className="flex flex-col justify-center items-center h-64 text-gray-400 font-medium gap-2 rounded-3xl border border-dashed border-gray-200 bg-white">
+            <p>Aucune bannière pour le moment.</p>
+            <p className="text-xs">Cliquez sur « AJOUTER UNE BANNIÈRE » pour en créer une.</p>
+          </div>
+          ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {slides.map((slide) => {
               // Sécurité : On vérifie si la valeur est 1 (ou "1") pour l'activer
@@ -118,14 +149,14 @@ export default function Silder() {
               return (
                 <div
                   key={slide.id}
-                  className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col h-full"
+                  className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col h-full"
                 >
                   {/* Zone de l'image */}
                   <div className="bg-[#f5f4ee] h-48 flex items-center justify-center relative w-full overflow-hidden">
-                    {slide.media ? (
+                    {slide.media?.length > 0 ? (
                       <img
                         src={`${baseUrl}/storage/${slide.media[0].file_path}`}
-                        alt={slide.file_name || "Slide"}
+                        alt={slide.title || "Slide"}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -146,12 +177,12 @@ export default function Silder() {
                   </div>
 
                   {/* Zone d'informations et boutons */}
-                  <div className="p-4 flex flex-col flex-grow justify-between gap-4">
+                  <div className="p-6 md:p-8 flex flex-col flex-grow justify-between gap-4">
                     {/* Statut et Nom du fichier */}
                     <div className="space-y-2">
                       <div>
                         {isActive ? (
-                          <span className="inline-flex items-center gap-1 bg-[#edf7ed] text-[#2e7d32] text-xs font-medium px-2.5 py-1 rounded-full border border-[#c3e6cb]">
+                          <span className="inline-flex items-center gap-1 bg-[#93b86a]/15 text-[#93b86a] text-xs font-medium px-2.5 py-1 rounded-full">
                             <svg
                               className="w-3.5 h-3.5"
                               fill="none"
@@ -168,7 +199,7 @@ export default function Silder() {
                             Actif
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 bg-[#fdf2f2] text-[#c81e1e] text-xs font-medium px-2.5 py-1 rounded-full border border-[#fbd5d5]">
+                          <span className="inline-flex items-center gap-1 bg-red-100 text-red-700 text-xs font-medium px-2.5 py-1 rounded-full">
                             <svg
                               className="w-3.5 h-3.5"
                               fill="none"
@@ -238,7 +269,34 @@ export default function Silder() {
                         </button>
                       )}
 
-                      {/* <button className="border border-gray-300 rounded-xl p-2.5 bg-white hover:bg-gray-50 text-gray-600 hover:text-red-600 active:bg-gray-100 transition-colors flex items-center justify-center shrink-0">
+                      <button
+                        onClick={() => {
+                          setSelectedSlide(slide);
+                          setEditOpen(true);
+                        }}
+                        title="Modifier"
+                        className="border border-gray-300 rounded-xl p-2.5 bg-white hover:bg-gray-50 text-gray-600 hover:text-[#93b86a] active:bg-gray-100 transition-colors flex items-center justify-center shrink-0"
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+                          />
+                        </svg>
+                      </button>
+
+                      <button
+                        onClick={() => deleteSlide(slide.id)}
+                        title="Supprimer"
+                        className="border border-gray-300 rounded-xl p-2.5 bg-white hover:bg-gray-50 text-gray-600 hover:text-red-600 active:bg-gray-100 transition-colors flex items-center justify-center shrink-0"
+                      >
                         <svg
                           className="w-5 h-5"
                           fill="none"
@@ -252,13 +310,14 @@ export default function Silder() {
                             d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
                           />
                         </svg>
-                      </button> */}
+                      </button>
                     </div>
                   </div>
                 </div>
               );
             })}
           </div>
+          )
         )}
           {pagination.last_page > 1 && (
           <div className="p-6 border-t border-gray-200 flex justify-center gap-2 bg-gray-50/30">
@@ -284,6 +343,14 @@ export default function Silder() {
         <CreateSlider
          isOpen={openCreate}
          onClose={() => setOpenCreate(false)}
+         refreshSlides={getSlides}
+        />
+
+        {/* Modal d'édition */}
+        <EditSlider
+         isOpen={editOpen}
+         onClose={() => setEditOpen(false)}
+         slide={selectedSlide}
          refreshSlides={getSlides}
         />
 

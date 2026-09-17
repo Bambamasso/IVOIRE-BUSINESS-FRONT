@@ -62,7 +62,8 @@ export default function CategoryPage() {
               Gestion des Catégories
             </h1>
             <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">
-              Organisation du catalogue • {categories.length} catégories
+              Organisation du catalogue •{" "}
+              {pagination.total ?? categories.length} catégories
             </p>
           </div>
           <button
@@ -74,14 +75,14 @@ export default function CategoryPage() {
         </div>
 
         {/* TABLEAU DESIGN UNIFIÉ */}
-        <div className="bg-white rounded-[32px] border border-gray-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-50/50 border-b border-gray-200 text-[10px] font-black uppercase text-gray-500 tracking-widest">
                   <th className="px-8 py-6">Aperçu</th>
                   <th className="px-6 py-6 text-center">Nom</th>
-                  <th className="px-8 py-6">Sous categorie</th>
+                  <th className="px-8 py-6">Catégorie parente</th>
                   <th className="px-8 py-6">Description</th>
                   <th className="px-8 py-6 text-right">Actions</th>
                 </tr>
@@ -90,7 +91,7 @@ export default function CategoryPage() {
                 {loading && !categories.length ? (
                   <tr>
                     <td
-                      colSpan="4"
+                      colSpan="5"
                       className="px-8 py-20 text-center text-gray-400 font-bold italic"
                     >
                       Chargement des catégories...
@@ -99,7 +100,7 @@ export default function CategoryPage() {
                 ) : categories.length === 0 ? (
                   <tr>
                     <td
-                      colSpan="4"
+                      colSpan="5"
                       className="px-8 py-20 text-center text-gray-400 font-bold italic"
                     >
                       Aucune catégorie trouvée.
@@ -139,10 +140,12 @@ export default function CategoryPage() {
                           className={`inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
                             !cat.parent_id
                               ? " border border-[#e8d393]"
-                              : "bg-purple-50 border border-purple-100"
+                              : "bg-[#93b86a]/10 text-[#93b86a] border border-[#93b86a]/20"
                           }`}
                         >
-                          {!cat.parent_id ? "aucune" : cat.parent.name}
+                          {!cat.parent_id
+                            ? "aucune"
+                            : cat.parent?.name || "—"}
                         </span>
                       </td>
 

@@ -149,25 +149,26 @@ export default function ProductList({ route, refreshFlag }) {
             product_id={selectedProductId}
             refresh={fetchProducts}
           />
-          {/* Pagination avec ton style spécifique (w-9 h-9, font-black, text-[10px]) */}
+          {/* Pagination précédent / suivant */}
           {pagination && pagination.last_page > 1 && (
-            <div className="p-6 border-t border-gray-200 flex justify-center gap-2 bg-gray-50/30">
-              {Array.from(
-                { length: pagination.last_page },
-                (_, i) => i + 1,
-              ).map((p) => (
-                <button
-                  key={p}
-                  onClick={() => fetchProducts(p)}
-                  className={`w-9 h-9 rounded-xl font-black text-[10px] transition-all ${
-                    pagination.current_page === p
-                      ? "bg-[#93b86a] text-white shadow-lg shadow-[#93b86a]/20"
-                      : "bg-white text-gray-400 border border-gray-200 shadow-sm hover:border-[#93b86a]/50"
-                  }`}
-                >
-                  {p}
-                </button>
-              ))}
+            <div className="p-6 border-t border-gray-200 flex items-center justify-center gap-4 bg-gray-50/30">
+              <button
+                onClick={() => fetchProducts(pagination.current_page - 1)}
+                disabled={pagination.current_page <= 1}
+                className="px-4 h-9 rounded-xl font-black text-[10px] uppercase tracking-wider bg-white text-gray-400 border border-gray-200 shadow-sm hover:border-[#93b86a]/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                Précédent
+              </button>
+              <span className="text-[10px] font-black text-gray-500 tracking-wider">
+                {pagination.current_page} / {pagination.last_page}
+              </span>
+              <button
+                onClick={() => fetchProducts(pagination.current_page + 1)}
+                disabled={pagination.current_page >= pagination.last_page}
+                className="px-4 h-9 rounded-xl font-black text-[10px] uppercase tracking-wider bg-white text-gray-400 border border-gray-200 shadow-sm hover:border-[#93b86a]/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                Suivant
+              </button>
             </div>
           )}
         </div>

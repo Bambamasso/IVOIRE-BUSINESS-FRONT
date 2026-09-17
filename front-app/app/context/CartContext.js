@@ -113,6 +113,18 @@ export function CartProvider({ children }) {
 
   // Ajoute un produit au panier
   const addToCart = useCallback(async (product, variant, quantity) => {
+    // Filet de sécurité : ne jamais ajouter un article en rupture / archivé
+    const target = variant ?? product;
+    const statusCode = target?.status?.code;
+    if (statusCode === "out-of-stock" || statusCode === "archived") {
+      alert("Ce produit n'est plus disponible.");
+      return false;
+    }
+    if (typeof target?.stock_quantity === "number" && target.stock_quantity <= 0) {
+      alert("Ce produit est en rupture de stock.");
+      return false;
+    }
+
     if (isAuthenticated) {
       try {
         await cartApi.addToCart(product.id, variant?.id || null, quantity);

@@ -3,7 +3,14 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { RiEyeLine } from "react-icons/ri";
 
-export default function OrdersList({ route, statusColor }) {
+const STATUS_BADGE_STYLES = {
+  pending: "bg-amber-100 text-amber-700",
+  validated: "bg-[#93b86a]/15 text-[#93b86a]",
+  delivered: "bg-blue-100 text-blue-700",
+  cancelled: "bg-red-100 text-red-700",
+};
+
+export default function OrdersList({ route }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({});
@@ -19,7 +26,6 @@ export default function OrdersList({ route, statusColor }) {
         },
       });
       const data = response.data?.data.data || [];
-      console.log("Commandes chargées :", data);
       setOrders(data);
       setPagination(response.data?.data);
     } catch (err) {
@@ -85,9 +91,8 @@ export default function OrdersList({ route, statusColor }) {
                     <td className="px-6 py-5 text-center">
                       <span
                         className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                          order.status?.code === "validated"
-                            ? "bg-[#93b86a]/10 text-[#93b86a]"
-                            : "bg-gray-100 text-gray-500"
+                          STATUS_BADGE_STYLES[order.status?.code] ||
+                          "bg-gray-100 text-gray-500"
                         }`}
                       >
                         {order.status?.name}
@@ -141,24 +146,26 @@ export default function OrdersList({ route, statusColor }) {
           </table>
         </div>
 
-        {/* Pagination style SaaS */}
+        {/* Pagination précédent / suivant */}
         {pagination && pagination.last_page > 1 && (
-          <div className="p-6 border-t border-gray-200 flex justify-center gap-2 bg-gray-50/30">
-            {Array.from({ length: pagination.last_page }, (_, i) => i + 1).map(
-              (p) => (
-                <button
-                  key={p}
-                  onClick={() => getOrders(p)}
-                  className={`w-9 h-9 rounded-xl font-black text-[10px] transition-all ${
-                    pagination.current_page === p
-                      ? "bg-[#93b86a] text-white shadow-lg shadow-[#93b86a]/20"
-                      : "bg-white text-gray-400 border border-gray-200 shadow-sm hover:border-[#93b86a] hover:text-[#93b86a]"
-                  }`}
-                >
-                  {p}
-                </button>
-              ),
-            )}
+          <div className="p-6 border-t border-gray-200 flex items-center justify-center gap-4 bg-gray-50/30">
+            <button
+              onClick={() => getOrders(pagination.current_page - 1)}
+              disabled={pagination.current_page <= 1}
+              className="px-4 h-9 rounded-xl font-black text-[10px] uppercase tracking-wider bg-white text-gray-400 border border-gray-200 shadow-sm hover:border-[#93b86a] hover:text-[#93b86a] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            >
+              Précédent
+            </button>
+            <span className="text-[10px] font-black text-gray-500 tracking-wider">
+              {pagination.current_page} / {pagination.last_page}
+            </span>
+            <button
+              onClick={() => getOrders(pagination.current_page + 1)}
+              disabled={pagination.current_page >= pagination.last_page}
+              className="px-4 h-9 rounded-xl font-black text-[10px] uppercase tracking-wider bg-white text-gray-400 border border-gray-200 shadow-sm hover:border-[#93b86a] hover:text-[#93b86a] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            >
+              Suivant
+            </button>
           </div>
         )}
       </div>

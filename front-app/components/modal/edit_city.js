@@ -1,80 +1,70 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import axios from "axios"; // Ne pas oublier l'import !
+import axios from "axios";
 
-export default function RejectRequest({
-  openReject,
-  onClose,
-  requestId,
-  onRefresh,
-}) {
+export default function EditCity({ openEdit, onClose, city, onRefresh }) {
   const [loading, setLoading] = useState(false);
-  const [rejection_reason, setRejectionReason] = useState("");
+  const [name, setName] = useState("");
   const [error, setError] = useState("");
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-  if (!openReject) return null;
+  useEffect(() => {
+    if (city) {
+      setName(city.name || "");
+      setError("");
+    }
+  }, [city]);
+
+  if (!openEdit) return null;
 
   const closeAndReset = () => {
     setError("");
-    setRejectionReason("");
     onClose();
   };
 
-  const rejectedRequest = async (e) => {
+  const handleSubmit = async (e) => {
     if (e) e.preventDefault();
 
-    if (!rejection_reason.trim()) {
-      setError("Le motif du rejet est obligatoire.");
-      toast.error("Le motif du rejet est obligatoire.");
+    if (!name.trim()) {
+      setError("Le nom de la ville est obligatoire.");
+      toast.error("Le nom de la ville est obligatoire.");
       return;
     }
     setError("");
-
-    // 1. On active le loading dès le début
     setLoading(true);
 
-    const data = { rejection_reason };
-
     try {
-     
       const token = JSON.parse(localStorage.getItem("admin_token"));
-
-      const response = await axios.patch(
-        `${baseUrl}/api/admin/service-requests/reject/${requestId}`,
-        data,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        },
+      const response = await axios.put(
+        `${baseUrl}/api/admin/cities/${city.id}`,
+        { name },
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       if (response.data.status === "success") {
-        toast.success(response.data.message || "Demande rejetée");
-        await onRefresh(); // On attend que le refresh soit lancé
+        toast.success(response.data.message || "Ville mise à jour");
+        await onRefresh();
         closeAndReset();
       }
-    } catch (error) {
-      console.error(error);
-      toast.error(error.response?.data?.message || "Erreur lors du rejet");
+    } catch (err) {
+      console.error(err);
+      toast.error(
+        err.response?.data?.message || "Erreur lors de la mise à jour",
+      );
     } finally {
-      // 2. On désactive le loading à la fin, quoi qu'il arrive
       setLoading(false);
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center w-full h-full bg-black/60 backdrop-blur-sm p-4">
-      <div className="relative bg-white rounded-[32px] shadow-2xl border border-gray-100 w-full max-w-md overflow-hidden">
-        {/* Ligne de rappel Beige */}
+      <div className="relative bg-white rounded-3xl shadow-2xl border border-gray-100 w-full max-w-md overflow-hidden">
         <div className="h-2 bg-[#e8d393] w-full" />
 
         <div className="p-8">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xl font-black text-gray-900">
-              Refuser la demande
+              Modifier la ville
             </h3>
             <button
               onClick={closeAndReset}
@@ -96,21 +86,20 @@ export default function RejectRequest({
             </button>
           </div>
 
-          <form onSubmit={rejectedRequest} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-gray-400 ml-2 tracking-widest">
-                Motif du rejet
+                Nom de la ville
               </label>
-              <textarea
+              <input
+                type="text"
                 required
-                rows="4"
-                value={rejection_reason}
+                value={name}
                 onChange={(e) => {
-                  setRejectionReason(e.target.value);
+                  setName(e.target.value);
                   if (error) setError("");
                 }}
-                placeholder="Expliquez brièvement la raison du refus au client..."
-                className={`w-full px-6 py-4 bg-gray-50 border rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#93b86a]/20 focus:bg-white focus:border-[#93b86a]/20 transition-all resize-none ${error ? "border-red-300" : "border-transparent"}`}
+                className={`w-full px-6 py-4 bg-gray-50 border rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#93b86a]/20 focus:bg-white focus:border-[#93b86a]/20 transition-all ${error ? "border-red-300" : "border-transparent"}`}
               />
               {error && (
                 <p className="text-xs font-bold text-red-500 ml-2">{error}</p>
@@ -119,11 +108,11 @@ export default function RejectRequest({
 
             <div className="flex flex-col sm:flex-row gap-3">
               <button
-                type="submit" // Utilise le type submit pour le formulaire
+                type="submit"
                 disabled={loading}
-                className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-600 shadow-lg shadow-red-500/20 transition-all disabled:opacity-50"
+                className="flex-1 py-4 bg-[#93b86a] text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#7fa359] shadow-lg shadow-[#93b86a]/20 transition-all disabled:opacity-50"
               >
-                {loading ? "Traitement..." : "Confirmer le rejet"}
+                {loading ? "Enregistrement..." : "Enregistrer"}
               </button>
               <button
                 type="button"
