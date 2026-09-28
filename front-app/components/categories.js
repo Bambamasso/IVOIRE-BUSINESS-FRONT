@@ -31,7 +31,7 @@ export function Categories() {
   return (
     <section className="bg-[#f9f8f3] dark:bg-gray-950 py-16 text-center">
       <h2 className="text-3xl font-serif text-gray-900 mb-6 p-2">
-        Catecorie des produits
+        Catégories des produits
       </h2>
 
       {/* Conteneur défilant sur mobile, grille centrée sur desktop */}
@@ -56,7 +56,7 @@ export function Categories() {
               {categorie.name}
             </h3>
             <p className="text-gray-400 text-[10px]">
-              {categorie.products} Products
+              {categorie.products} Produits
             </p>
           </div>
         ))}

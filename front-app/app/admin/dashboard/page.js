@@ -2,16 +2,50 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../layaut";
 import axios from "axios";
+import Link from "next/link";
+import {
+  RiShoppingBag3Line,
+  RiFileList3Line,
+  RiTimeLine,
+  RiAlertLine,
+  RiMoneyDollarCircleLine,
+} from "react-icons/ri";
+
+const STATUS_COLORS = {
+  pending: "bg-amber-100 text-amber-700",
+  validated: "bg-blue-100 text-blue-700",
+  delivered: "bg-[#93b86a]/10 text-[#93b86a]",
+  cancelled: "bg-red-100 text-red-600",
+  "in-progress": "bg-blue-100 text-blue-700",
+  completed: "bg-[#93b86a]/10 text-[#93b86a]",
+};
+
+function formatFCFA(amount) {
+  return `${Number(amount || 0).toLocaleString("fr-FR")} FCFA`;
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return "—";
+  return new Date(dateStr).toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 export default function Dasboard() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-  const [orders, setOrders] = useState(0);
-  const [products, setProducts] = useState(0);
-  const [servicesRequest, setServicesRequest] = useState(0);
+  const [stats, setStats] = useState({
+    products: { total: 0, out_of_stock: 0 },
+    orders: { total: 0, revenue: 0 },
+    services: { pending: 0 },
+  });
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [recentServiceRequests, setRecentServiceRequests] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stats = async () => {
+    const fetchStats = async () => {
       try {
         const token = JSON.parse(localStorage.getItem("admin_token"));
         const response = await axios.get(`${baseUrl}/api/admin/dashboard`, {
@@ -20,10 +54,11 @@ export default function Dasboard() {
             Accept: "application/json",
           },
         });
-        const s = response.data.data.stats;
-        setOrders(s.orders.total);
-        setProducts(s.products.total);
-        setServicesRequest(s.services.total);
+        const { stats, recent_orders, recent_service_requests } =
+          response.data.data;
+        setStats(stats);
+        setRecentOrders(recent_orders || []);
+        setRecentServiceRequests(recent_service_requests || []);
       } catch (error) {
         console.error("Erreur lors du chargement du tableau de bord :", error);
       } finally {
@@ -31,73 +66,175 @@ export default function Dasboard() {
       }
     };
 
-    stats();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    fetchStats();
+  }, [baseUrl]);
+
+  const kpis = [
+    {
+      label: "Nombre total de produits",
+      value: stats.products.total,
+      icon: RiShoppingBag3Line,
+      color: "text-[#93b86a]",
+    },
+    {
+      label: "Nombre total de commandes",
+      value: stats.orders.total,
+      icon: RiFileList3Line,
+      color: "text-[#e8d393]",
+    },
+    {
+      label: "Demandes de service en attente",
+      value: stats.services.pending,
+      icon: RiTimeLine,
+      color: "text-amber-500",
+    },
+    {
+      label: "Produits en rupture de stock",
+      value: stats.products.out_of_stock,
+      icon: RiAlertLine,
+      color: "text-red-500",
+    },
+  ];
+
   return (
-    <>
-      <AdminLayout>
-        <div className="space-y-8">
-          {/* Cartes de KPI épurées - harmonisées avec AdminLayout */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
-            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Nombre total de produits
-              </span>
-              <h3 className="text-2xl font-bold mt-1 text-[#93b86a]">
-                {products}
+    <AdminLayout>
+      <div className="space-y-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {kpis.map((kpi) => {
+            const Icon = kpi.icon;
+            return (
+              <div
+                key={kpi.label}
+                className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    {kpi.label}
+                  </span>
+                  <Icon className={kpi.color} size={20} />
+                </div>
+                <h3 className={`text-2xl font-bold ${kpi.color}`}>
+                  {loading ? "—" : kpi.value}
+                </h3>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              Chiffre d&apos;affaires (commandes payées)
+            </span>
+            <RiMoneyDollarCircleLine className="text-[#93b86a]" size={20} />
+          </div>
+          <h3 className="text-3xl font-bold text-gray-900 mt-1">
+            {loading ? "—" : formatFCFA(stats.orders.revenue)}
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-bold text-gray-900">
+                Dernières commandes
               </h3>
+              <Link
+                href="/admin/orders"
+                className="text-xs font-bold text-[#93b86a] hover:underline"
+              >
+                Voir tout
+              </Link>
             </div>
-            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Nombre total de commandes
-              </span>
-              <h3 className="text-2xl font-bold mt-1 text-[#e8d393]">{orders}</h3>
-            </div>
-            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Nombre total de demandes de service
-              </span>
-              <h3 className="text-2xl font-bold mt-1 text-[#93b86a]">{servicesRequest}</h3>
-            </div>
-            {/* <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Chiffre d'Affaires
-              </span>
-              <h3 className="text-2xl font-bold mt-1 text-gray-900">4 890 000 FCFA</h3>
-            </div> */}
+            {loading ? (
+              <p className="text-sm text-gray-400">Chargement...</p>
+            ) : recentOrders.length === 0 ? (
+              <p className="text-sm text-gray-400">
+                Aucune commande pour le moment.
+              </p>
+            ) : (
+              <div className="divide-y divide-gray-100">
+                {recentOrders.map((order) => (
+                  <div
+                    key={order.id}
+                    className="flex items-center justify-between py-3"
+                  >
+                    <div>
+                      <p className="text-sm font-bold text-gray-900">
+                        {order.first_name} {order.last_name}
+                      </p>
+                      <p className="text-xs text-gray-400 font-medium">
+                        {order.order_number} • {formatDate(order.created_at)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-gray-900">
+                        {formatFCFA(order.total_amount)}
+                      </p>
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                          STATUS_COLORS[order.status?.code] ||
+                          "bg-gray-100 text-gray-500"
+                        }`}
+                      >
+                        {order.status?.name || "—"}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Zone Graphique (Doughnut) & Info - harmonisée */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1 bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between">
-              <div>
-                <h2 className="text-base font-bold mb-1 text-gray-900">
-                  Répartition des Revenus
-                </h2>
-                <p className="text-sm text-gray-500 mb-6">
-                  Proportion entre produits et devis validés.
-                </p>
-              </div>
-
-              {/* Emplacement pour le Doughnut chart */}
-              <div className="h-48 bg-white rounded-lg border border-dashed border-gray-200 flex items-center justify-center text-sm text-gray-400">
-                [ Intégrer le composant Doughnut ici ]
-              </div>
-            </div>
-
-            <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-              <h3 className="text-base font-bold text-gray-900 mb-2">
-                Notes rapides
+          <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-bold text-gray-900">
+                Dernières demandes de service
               </h3>
-              <p className="text-sm text-gray-500">
-                Espace réservé pour ajouter des widgets, graphiques ou listes
-                récentes.
-              </p>
+              <Link
+                href="/admin/services_requests"
+                className="text-xs font-bold text-[#93b86a] hover:underline"
+              >
+                Voir tout
+              </Link>
             </div>
+            {loading ? (
+              <p className="text-sm text-gray-400">Chargement...</p>
+            ) : recentServiceRequests.length === 0 ? (
+              <p className="text-sm text-gray-400">
+                Aucune demande pour le moment.
+              </p>
+            ) : (
+              <div className="divide-y divide-gray-100">
+                {recentServiceRequests.map((request) => (
+                  <div
+                    key={request.id}
+                    className="flex items-center justify-between py-3"
+                  >
+                    <div>
+                      <p className="text-sm font-bold text-gray-900">
+                        {request.full_name}
+                      </p>
+                      <p className="text-xs text-gray-400 font-medium">
+                        {request.service?.name} •{" "}
+                        {formatDate(request.created_at)}
+                      </p>
+                    </div>
+                    <span
+                      className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                        STATUS_COLORS[request.status?.code] ||
+                        "bg-gray-100 text-gray-500"
+                      }`}
+                    >
+                      {request.status?.name || "—"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
-      </AdminLayout>
-    </>
+      </div>
+    </AdminLayout>
   );
 }

@@ -3,29 +3,42 @@
 import axios from "axios";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { RiSearchLine, RiCloseLine } from "react-icons/ri";
 
 export default function Products() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
   const url = baseUrl + "/api/home/all-product";
-  
+
   const [allProducts, setAllProducts] = useState([]);
   // 1. État pour gérer le nombre de produits affichés
-  const [visibleCount, setVisibleCount] = useState(8); 
+  const [visibleCount, setVisibleCount] = useState(8);
+  const [search, setSearch] = useState("");
+  // Valeur réellement envoyée au backend, mise à jour avec un délai (debounce)
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // Attend 400ms sans frappe avant de lancer la recherche côté serveur
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedSearch(search.trim()), 400);
+    return () => clearTimeout(id);
+  }, [search]);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get(url);
+        const response = await axios.get(url, {
+          params: debouncedSearch ? { search: debouncedSearch } : {},
+        });
         const data = Array.isArray(response.data.data)
           ? response.data.data
           : response.data.data?.data || []; // Gestion si Laravel renvoie .data.data
         setAllProducts(data);
+        setVisibleCount(8);
       } catch (error) {
         console.error("erreur réseau:", error);
       }
     };
     fetchProducts();
-  }, []);
+  }, [url, debouncedSearch]);
 
   // 2. Fonction pour charger plus de produits
   const loadMore = () => {
@@ -34,12 +47,39 @@ export default function Products() {
 
   return (
     <section className="bg-gray-50 dark:bg-gray-950">
-      <div className="max-w-6xl mx-auto px-4 py-12 lg:py-16">
-        <div className="flex items-center justify-between gap-4 mb-6">
-          <h2 className="text-2xl font-black text-gray-800 uppercase tracking-tighter">
-            Nos Produits
-          </h2>
-          
+      <div className="max-w-6xl mx-auto px-4 py-10 lg:py-16">
+        {/* Barre de recherche centrée */}
+        <div className="relative mx-auto mb-2 max-w-md">
+          <RiSearchLine
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+            size={20}
+          />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Rechercher un produit..."
+            className="w-full pl-11 pr-10 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#93b86a]/20 focus:border-[#93b86a]/40 transition-all"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              aria-label="Effacer la recherche"
+            >
+              <RiCloseLine size={20} />
+            </button>
+          )}
+        </div>
+
+        {debouncedSearch && (
+          <p className="text-sm text-gray-500 font-medium text-center mb-4">
+            {allProducts.length} résultat{allProducts.length !== 1 ? "s" : ""} pour «{" "}
+            <span className="font-bold text-gray-700">{debouncedSearch}</span> »
+          </p>
+        )}
+
+        <div className="flex items-center justify-end gap-4 mb-6">
           {/* Bouton Voir Plus (Desktop) - Apparaît seulement s'il reste des produits à charger */}
           {visibleCount < allProducts.length && (
             <button
@@ -51,6 +91,13 @@ export default function Products() {
           )}
         </div>
 
+        {allProducts.length === 0 ? (
+          <div className="text-center py-16 text-gray-400 italic">
+            {debouncedSearch
+              ? "Aucun produit ne correspond à votre recherche."
+              : "Aucun produit disponible pour le moment."}
+          </div>
+        ) : (
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {/* 3. On utilise .slice(0, visibleCount) pour limiter l'affichage */}
           {allProducts.slice(0, visibleCount).map((product) => {
@@ -116,6 +163,7 @@ export default function Products() {
             );
           })}
         </div>
+        )}
 
         {/* Bouton Mobile / Bas de page */}
         {visibleCount < allProducts.length && (

@@ -132,11 +132,11 @@ export default function OrderPage() {
       });
       // console.log(response.data);
       if (response.data.status === "success") {
-        // Si paiement en ligne (Paystack), on redirige vers l'URL fournie par le back
-        if (payment_method === "online" && response.data.payment_url) {
-          window.location.href = response.data.payment_url;
-          return;
-        }
+        // Paiement en ligne (Paystack) désactivé temporairement : pas encore prêt.
+        // if (payment_method === "online" && response.data.payment_url) {
+        //   window.location.href = response.data.payment_url;
+        //   return;
+        // }
 
         toast.success("Commande enregistrée avec succès !");
 
@@ -334,7 +334,7 @@ export default function OrderPage() {
                   </div>
                   <h2 className="text-xl font-bold">Mode de paiement</h2>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   <button
                     type="button"
                     onClick={() => setPaymentMethod("cash_on_delivery")}
@@ -345,6 +345,7 @@ export default function OrderPage() {
                       Espèces à la réception
                     </p>
                   </button>
+                  {/* Paiement en ligne (Paystack) désactivé temporairement : pas encore prêt.
                   <button
                     type="button"
                     onClick={() => setPaymentMethod("online")}
@@ -355,6 +356,7 @@ export default function OrderPage() {
                       Mobile Money / Carte
                     </p>
                   </button>
+                  */}
                 </div>
               </div>
 

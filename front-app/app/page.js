@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Navbar from "@/components/navigation";
 import Link from "next/link";
+import axios from "axios";
 import HeroSlider from "@/components/Hero";
 import FeaturedOffers from "@/components/products";
 import Footer from "@/components/footer";
@@ -12,13 +13,27 @@ import Expertise from "@/components/Expertise";
 import Projects from "@/components/Projects";
 import Partners from "@/components/Partners";
 import AboutSummary from "@/components/About";
+
+async function getSlides() {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  try {
+    const response = await axios.get(`${baseUrl}/api/home/media-slides`);
+    return response.data.data || [];
+  } catch (error) {
+    console.error("Erreur lors du chargement des slides :", error);
+    return [];
+  }
+}
+
 export default async function Home() {
+  const slides = await getSlides();
+
   return (
     <>
       <Navbar />
       <div className="min-h-screen bg-white">
         {/* --- 1. Section Héro (Le Canapé) --- */}
-        <HeroSlider />
+        <HeroSlider slides={slides} />
         
         {/* section state */}
         <StateSection />

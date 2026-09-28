@@ -58,7 +58,7 @@ export default function ProjectsPage() {
             onClick={() => setOpenCreate(true)}
             className="flex items-center gap-2 bg-[#93b86a] text-white px-6 py-3 rounded-2xl font-black text-xs shadow-lg shadow-[#93b86a]/20 hover:scale-105 transition-transform"
           >
-            <IoAdd size={18} /> AJOUTER UN PROJET
+            <IoAdd size={18} /> AJOUTER
           </button>
         </div>
 

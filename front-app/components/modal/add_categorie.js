@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { IoClose } from "react-icons/io5";
 import Image from "next/image";
 import axios from "axios";
-import toast from "react-hot-toast"; // ✅ Toaster retiré d'ici
+import toast from "react-hot-toast"; // 
 
 // ✅ Fonction utilitaire token extraite — plus de répétition
 const getToken = () => {
@@ -27,7 +27,7 @@ export default function CreateCategorie({ addOpen, onClose, refresh }) {
     if (addOpen) fetchCategories();
   }, [addOpen]);
 
-  // ✅ Reset quand on ferme
+  // 
   useEffect(() => {
     if (!addOpen) {
       setName("");
@@ -39,7 +39,7 @@ export default function CreateCategorie({ addOpen, onClose, refresh }) {
 
   const fetchCategories = async () => {
     try {
-      const token = getToken(); // ✅ utilitaire réutilisable
+      const token = getToken(); // 
       const response = await axios.get(
         `${baseUrl}/api/admin/categories/all/categories`,
         { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } }
@@ -99,7 +99,7 @@ export default function CreateCategorie({ addOpen, onClose, refresh }) {
         toast.error(error?.response?.data?.message || "Erreur lors de la création");
       }
     } finally {
-      setLoading(false); // ✅ toujours exécuté
+      setLoading(false); // 
     }
   };
 

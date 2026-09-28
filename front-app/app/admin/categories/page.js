@@ -70,7 +70,7 @@ export default function CategoryPage() {
             onClick={() => setAddOpen(true)}
             className="flex items-center gap-2 bg-[#93b86a] text-white px-6 py-3 rounded-2xl font-black text-xs shadow-lg shadow-[#93b86a]/20 hover:scale-105 transition-transform"
           >
-            <IoIosAddCircle size={20} /> AJOUTER UNE CATÉGORIE
+            <IoIosAddCircle size={20} /> AJOUTER
           </button>
         </div>
 

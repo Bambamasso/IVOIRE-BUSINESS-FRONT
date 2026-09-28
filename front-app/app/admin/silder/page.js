@@ -123,7 +123,7 @@ export default function Silder() {
             onClick={() => setOpenCreate(true)} // Correction ici : openCreate était une variable, pas la fonction setOpenCreate
             className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#93b86a] text-white px-6 py-3 rounded-2xl font-black text-xs shadow-lg shadow-[#93b86a]/20 hover:scale-105 transition-transform"
           >
-            <IoAdd size={18} /> AJOUTER UNE BANNIÈRE
+            <IoAdd size={18} /> AJOUTER
           </button>
         </div>
 

@@ -29,7 +29,6 @@ export default function VentePage() {
       {/* Contenu Principal */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20 pb-20">
         
-        {/* Section categories - J'imagine qu'elle contient tes filtres */}
         <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-12 border border-gray-100">
            <Categories />
         </div>
@@ -41,7 +40,7 @@ export default function VentePage() {
               Tous les produits
             </h2>
             <p className="text-sm text-gray-500 font-medium italic">
-              Expédition rapide partout en Côte d'Ivoire
+              Expédition rapide partout en Côte d&apos;Ivoire
             </p>
           </div>
           

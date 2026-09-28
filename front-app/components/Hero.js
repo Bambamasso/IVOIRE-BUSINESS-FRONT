@@ -2,28 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import axios from 'axios';
+import Image from 'next/image';
 
-export default function HeroSlider() {
+export default function HeroSlider({ slides = [] }) {
   const [index, setIndex] = useState(0);
-  const [slides, setSlides] = useState([]);
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-  // console.log('ddfer',baseUrl);
-  const getSlides = async () => {
-    try{
-      
-      const response= await axios.get(`${baseUrl}/api/home/media-slides`
-      )
-        const data = response.data.data || [];
-        setSlides(data);
-    }catch(error){
-
-    }
-  }
-  useEffect(() => {
-    // Récupération des slides depuis l'API au montage
-    getSlides();
-  }, []);
+  // L'optimiseur d'images de Next.js refuse par sécurité les sources sur IP
+  // privée/loopback (127.0.0.1, localhost) : on la désactive seulement dans ce
+  // cas (dev local). En production, le backend est sur un vrai domaine.
+  const isLocalBackend = /^https?:\/\/(127\.0\.0\.1|localhost)(:|\/)/.test(
+    baseUrl || '',
+  );
 
   useEffect(() => {
     if (slides.length === 0) return;
@@ -34,12 +23,11 @@ export default function HeroSlider() {
   }, [slides]);
 
   const current = slides[index] || {};
-  // console.log("Slide actuel:", current);
 
   return (
     <section className="relative w-full h-[450px] sm:h-[550px] lg:h-[650px] overflow-hidden bg-gray-900">
       
-      {/* Background Images avec Overlay */}
+     
       {slides.map((slide, i) => (
         <div
           key={i}
@@ -47,14 +35,16 @@ export default function HeroSlider() {
             i === index ? 'opacity-100' : 'opacity-0'
           }`}
         >
-          <div
-            className="w-full h-full bg-center bg-cover scale-105 transition-transform duration-[6000ms]"
-            style={{ 
-              backgroundImage: `url( ${baseUrl}/storage/${slide.media[0].file_path})`,
-              transform: i === index ? 'scale(1)' : 'scale(1.05)' 
-            }}
+          <Image
+            src={`${baseUrl}/storage/${slide.media[0].file_path}`}
+            alt={slide.title || 'Intellect Ivoire-Business'}
+            fill
+            priority={i === 0}
+            unoptimized={isLocalBackend}
+            sizes="100vw"
+            className="object-cover transition-transform duration-[6000ms]"
+            style={{ transform: i === index ? 'scale(1)' : 'scale(1.05)' }}
           />
-          {/* Gradient overlay pour une meilleure lisibilité du texte blanc */}
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
         </div>
       ))}
@@ -80,7 +70,7 @@ export default function HeroSlider() {
               href="../services_request"
               className="inline-flex items-center justify-center px-8 py-3 rounded-md bg-[#93b86a] text-white font-bold hover:bg-[#7fa75a] transition-all transform hover:scale-105 shadow-lg"
             >
-              Demander un devis
+              Confiez-nous votre projet
             </Link>
             
             {/* Bouton secondaire transparent pour le style "Vitrine" */}

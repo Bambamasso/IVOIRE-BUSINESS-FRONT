@@ -56,10 +56,10 @@ export default function ProductsPage() {
           </div>
           <button
             onClick={() => setHandleOpenModal(true)}
-            className="flex items-center justify-center gap-2 bg-[#93b86a] hover:bg-[#7fa359] text-white font-bold py-2.5 px-6 rounded-xl transition-all shadow-lg shadow-[#93b86a]/20"
+            className="flex items-center gap-2 bg-[#93b86a] text-white px-6 py-3 rounded-2xl font-black text-xs shadow-lg shadow-[#93b86a]/20 hover:scale-105 transition-transform"
           >
-            <RiAddLine size={20} />
-            Ajouter un produit
+            <RiAddLine size={18} />
+            AJOUTER
           </button>
         </div>
 

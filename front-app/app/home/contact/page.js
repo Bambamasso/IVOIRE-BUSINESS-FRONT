@@ -14,38 +14,49 @@ import {
 } from "react-icons/fa";
 
 export default function ContactPage() {
- const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-   const [form, setForm] = useState({
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const [form, setForm] = useState({
     full_name: "",
     email: "",
     phone_number: "",
     subject: "",
     message: "",
   });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Ta logique d'envoi d'email via Laravel ici
-    try{
-      const response = await axios.post(`${baseUrl}/api/home/contact`,form,{
+    setLoading(true);
+    try {
+      const response = await axios.post(`${baseUrl}/api/home/contact`, form, {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
       });
-     if(response.status===200){
-      toast.success(response.data.message)
-      
-     }
-
-    }catch(error){
+      if (response.data.success) {
+        toast.success(response.data.message);
+        setForm({
+          full_name: "",
+          email: "",
+          phone_number: "",
+          subject: "",
+          message: "",
+        });
+      }
+    } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error(response.data.error || "Erreur lors de l'envoi du message.");
+      toast.error(
+        error.response?.data?.errors ||
+          error.response?.data?.message ||
+          "Erreur lors de l'envoi du message.",
+      );
+    } finally {
+      setLoading(false);
     }
-    
   };
 
   return (
@@ -231,10 +242,10 @@ export default function ContactPage() {
                 <div className="md:col-span-2 space-y-3">
                   <button
                     type="submit"
-                    
+                    disabled={loading}
                     className="w-full md:w-auto px-10 py-4 bg-[#93b86a] text-white font-black rounded-xl hover:bg-[#e8d393] hover:text-gray-800 transition-all shadow-md uppercase tracking-widest text-sm disabled:opacity-50"
                   >
-                    Envoyer le message
+                    {loading ? "Envoi en cours..." : "Envoyer le message"}
                   </button>
 
                 </div>
