@@ -5,6 +5,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { RiSearchLine, RiCloseLine } from "react-icons/ri";
 
+function formatFCFA(amount) {
+  return `${Number(amount || 0).toLocaleString("fr-FR")} FCFA`;
+}
+
 export default function Products() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
   const url = baseUrl + "/api/home/all-product";
@@ -135,7 +139,7 @@ export default function Products() {
 
                   <div className="absolute bottom-4 right-4">
                     <span className="bg-black/70 backdrop-blur-sm px-3 py-1 rounded-lg text-sm font-black text-[#e8d393]">
-                      {product.price} FCFA
+                      {formatFCFA(product.price)}
                     </span>
                   </div>
                 </div>
@@ -144,9 +148,9 @@ export default function Products() {
                   <h3 className="text-sm font-black text-gray-800 uppercase mb-2 line-clamp-1">
                     {product.title}
                   </h3>
-                  <p className="text-gray-500 text-xs mb-6 line-clamp-2 italic h-8">
+                  {/* <p className="text-gray-500 text-xs mb-6 line-clamp-2 italic h-8">
                     {product.description}
-                  </p>
+                  </p> */}
                   
                   <Link 
                     href={`/show/${product.id}`}
