@@ -14,6 +14,8 @@ import {
   RiArrowRightSLine,
   RiLogoutBoxRLine,
   RiNotification3Line,
+  RiMenuLine,
+  RiCloseLine,
 } from "react-icons/ri";
 
 const adminMenu = [
@@ -129,6 +131,12 @@ export default function AdminLayout({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  // Ferme le tiroir mobile automatiquement à chaque changement de page
+  useEffect(() => {
+    setIsMobileSidebarOpen(false);
+  }, [pathname]);
 
   // Rôle + permissions réelles de l'utilisateur connecté
   const { profile, role, isAdmin, hasPermission } = useAdminAuth();
@@ -228,9 +236,21 @@ export default function AdminLayout({ children }) {
 
   return (
     <div className="h-screen bg-[#F8FAFC] dark:bg-gray-950 flex font-sans text-gray-900 overflow-hidden">
-      {/* Sidebar */}
-      <aside className="hidden md:flex md:w-72 flex-col bg-gray-900 text-gray-100 shadow-xl border-r border-gray-800">
-        <div className="h-20 flex items-center px-8 border-b border-gray-800/50">
+      {/* Fond assombri derrière le tiroir mobile */}
+      {isMobileSidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          onClick={() => setIsMobileSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar : tiroir coulissant sur mobile, fixe sur desktop */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-72 flex flex-col bg-gray-900 text-gray-100 shadow-xl border-r border-gray-800 transition-transform duration-300 md:static md:translate-x-0 ${
+          isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="h-20 flex items-center justify-between px-8 border-b border-gray-800/50">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-[#93b86a] rounded-lg flex items-center justify-center">
               <span className="font-black text-white">I</span>
@@ -239,6 +259,13 @@ export default function AdminLayout({ children }) {
               Ivoire <span className="text-[#93b86a]">Admin</span>
             </span>
           </div>
+          <button
+            onClick={() => setIsMobileSidebarOpen(false)}
+            className="md:hidden p-1 text-gray-400 hover:text-white"
+            aria-label="Fermer le menu"
+          >
+            <RiCloseLine size={24} />
+          </button>
         </div>
 
         <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
@@ -334,22 +361,31 @@ export default function AdminLayout({ children }) {
 
       {/* Main Section */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-8 sticky top-0 z-10">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white capitalize">
-              {currentPageTitle}
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-              Espace de gestion sécurisé
-            </p>
+        <header className="h-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 flex items-center justify-between gap-3 px-4 md:px-8 sticky top-0 z-10">
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              onClick={() => setIsMobileSidebarOpen(true)}
+              className="md:hidden p-2 -ml-2 shrink-0 text-gray-500 hover:text-[#93b86a] transition-colors"
+              aria-label="Ouvrir le menu"
+            >
+              <RiMenuLine size={24} />
+            </button>
+            <div className="min-w-0">
+              <h1 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white capitalize truncate">
+                {currentPageTitle}
+              </h1>
+              <p className="hidden sm:block text-sm text-gray-500 dark:text-gray-400 font-medium">
+                Espace de gestion sécurisé
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3 md:gap-6 shrink-0">
             <button className="p-2 text-gray-400 hover:text-[#93b86a] transition-colors relative">
               <RiNotification3Line size={24} />
               <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
             </button>
-            <div className="h-10 w-[1px] bg-gray-200"></div>
+            <div className="hidden sm:block h-10 w-[1px] bg-gray-200"></div>
             <div className="flex items-center gap-3 pl-2">
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-bold text-gray-900 dark:text-white leading-tight">
@@ -361,14 +397,14 @@ export default function AdminLayout({ children }) {
                   {ROLE_LABELS[role] || role || "—"}
                 </p>
               </div>
-              <div className="h-12 w-12 rounded-2xl bg-[#93b86a] shadow-lg shadow-[#93b86a]/30 text-white flex items-center justify-center text-lg font-black border-2 border-white">
+              <div className="h-10 w-10 md:h-12 md:w-12 rounded-2xl bg-[#93b86a] shadow-lg shadow-[#93b86a]/30 text-white flex items-center justify-center text-lg font-black border-2 border-white">
                 {profile?.first_name?.[0] || "A"}
               </div>
             </div>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto bg-[#F8FAFC] dark:bg-gray-950 p-8">
+        <main className="flex-1 overflow-y-auto bg-[#F8FAFC] dark:bg-gray-950 p-4 md:p-8">
           <div className="max-w-7xl mx-auto animate-in fade-in duration-500">
             {children}
           </div>

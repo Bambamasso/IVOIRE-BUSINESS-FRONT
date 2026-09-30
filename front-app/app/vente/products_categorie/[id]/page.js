@@ -6,6 +6,11 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { FaArrowLeft } from "react-icons/fa";
+
+function formatFCFA(amount) {
+  return `${Number(amount || 0).toLocaleString("fr-FR")} FCFA`;
+}
+
 export default function ProductsByCategory({ params }) {
   const { id } = React.use(params);
   const [products, setProducts] = useState([]);
@@ -23,12 +28,8 @@ export default function ProductsByCategory({ params }) {
         );
 
         if (response.data.status === "success") {
-          const productsList = response.data.data;
-          setProducts(productsList);
-
-          if (productsList.length > 0) {
-            setCategoryInfo(productsList[0].categorie);
-          }
+          setProducts(response.data.data);
+          setCategoryInfo(response.data.categorie || null);
         }
       } catch (error) {
         console.error("Erreur lors de la récupération des produits :", error);
@@ -71,6 +72,16 @@ export default function ProductsByCategory({ params }) {
           </Link>
         </div>
 
+        {!loading && products.length === 0 ? (
+          <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-200">
+            <p className="text-gray-500 font-bold">
+              Cette catégorie n&apos;a pas encore de produit.
+            </p>
+            <p className="text-gray-400 text-sm mt-1">
+              Revenez bientôt, de nouveaux produits arrivent régulièrement.
+            </p>
+          </div>
+        ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {products.map((product) => {
             // Vérification du statut de stock (basé sur tes codes : 'available' ou 'out-of-stock')
@@ -111,7 +122,7 @@ export default function ProductsByCategory({ params }) {
                   {/* Prix avec la couleur demandée #e8d393 */}
                   <div className="absolute bottom-4 right-4">
                     <span className="bg-black/70 backdrop-blur-sm px-3 py-1 rounded-lg text-sm font-black text-[#e8d393]">
-                      {product.price} FCFA
+                      {formatFCFA(product.price)}
                     </span>
                   </div>
                 </div>
@@ -140,6 +151,7 @@ export default function ProductsByCategory({ params }) {
             );
           })}
         </div>
+        )}
       </main>
 
       <Footer />

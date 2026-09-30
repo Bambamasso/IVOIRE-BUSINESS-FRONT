@@ -7,7 +7,7 @@ import axios from "axios";
 import { SlBasket, SlCreditCard, SlLocationPin, SlPhone } from "react-icons/sl";
 import Footer from "@/components/footer";
 import { useCart } from "@/app/context/CartContext";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import useRecaptcha from "@/app/hooks/useRecaptcha";
 import Script from "next/script";
 
@@ -142,7 +142,9 @@ export default function OrderPage() {
 
         // Vider le panier local après succès
         clearCart();
-        router.push("/vente");
+        setTimeout(() => {
+          router.push("/vente");
+        }, 2000);
       }
     } catch (error) {
       const apiErrors = error?.response?.data?.errors;
@@ -461,7 +463,6 @@ export default function OrderPage() {
         </div>{" "}
       </div>{" "}
       <Footer />
-      <Toaster position="top-center" />
     </>
   );
 }

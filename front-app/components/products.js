@@ -2,6 +2,7 @@
 
 import axios from "axios";
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { RiSearchLine, RiCloseLine } from "react-icons/ri";
 
@@ -12,6 +13,12 @@ function formatFCFA(amount) {
 export default function Products() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
   const url = baseUrl + "/api/home/all-product";
+  // L'optimiseur d'images de Next.js refuse par sécurité les sources sur IP
+  // privée/loopback (127.0.0.1, localhost) : on la désactive seulement dans ce
+  // cas (dev local). En production, le backend est sur un vrai domaine.
+  const isLocalBackend = /^https?:\/\/(127\.0\.0\.1|localhost)(:|\/)/.test(
+    baseUrl || "",
+  );
 
   const [allProducts, setAllProducts] = useState([]);
   // 1. État pour gérer le nombre de produits affichés
@@ -114,10 +121,13 @@ export default function Products() {
               >
                 <div className="relative h-64 overflow-hidden bg-gray-100">
                   {product.media && product.media.length > 0 ? (
-                    <img
+                    <Image
                       src={`${baseUrl}/storage/${product.media[0].file_path}`}
                       alt={product.title}
-                      className={`w-full h-full object-cover transition-transform duration-500 ${!isOutOfStock && "group-hover:scale-110"} ${isOutOfStock && "grayscale-[0.5]"}`}
+                      fill
+                      unoptimized={isLocalBackend}
+                      sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                      className={`object-cover transition-transform duration-500 ${!isOutOfStock && "group-hover:scale-110"} ${isOutOfStock && "grayscale-[0.5]"}`}
                     />
                   ) : (
                     <div className="flex items-center justify-center h-full text-gray-400 italic text-xs">

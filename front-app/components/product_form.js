@@ -11,7 +11,7 @@ import axios from "axios";
 export default function ProductForm({ isOpen, onClose , refresh}) {
   const [activeTab, setActiveTab] = useState("info");
   const [loading, setLoading] = useState(false);
-  const { formData = {}, totalStock } = useProduct();
+  const { formData = {}, totalStock, resetForm } = useProduct();
 
   if (!isOpen) return null;
 
@@ -74,6 +74,7 @@ export default function ProductForm({ isOpen, onClose , refresh}) {
         },
       });
       toast.success("Produit enregistré avec succès !");
+      resetForm();
       onClose();
       if (refresh) refresh();
     } catch (err) {
@@ -98,7 +99,10 @@ export default function ProductForm({ isOpen, onClose , refresh}) {
             Nouveau produit
           </span>
           <button
-            onClick={onClose}
+            onClick={() => {
+              resetForm();
+              onClose();
+            }}
             className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-sm text-slate-400 transition hover:border-slate-300 hover:text-slate-600"
           >
             ✕
@@ -137,7 +141,10 @@ export default function ProductForm({ isOpen, onClose , refresh}) {
         {/* Footer */}
         <div className="flex justify-end gap-2.5 border-t border-slate-200 bg-slate-50 px-8 py-4">
           <button
-            onClick={onClose}
+            onClick={() => {
+              resetForm();
+              onClose();
+            }}
             className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-600 transition hover:border-slate-300 hover:bg-slate-50"
           >
             Annuler

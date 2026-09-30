@@ -17,6 +17,11 @@ const nextConfig = {
         port: '8000',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'intellect-api.educbarri.com',
+        pathname: '/**',
+      },
     ],
   },
 
